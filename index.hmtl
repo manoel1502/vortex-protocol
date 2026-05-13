@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080b0a">
+<meta property="og:title" content="VORTEX Protocol — Sistema de Reconstrução Pessoal">
+<meta property="og:description" content="90 dias. Um sistema. Uma transformação real. Por R$30.">
+<title>VORTEX Protocol — Acesso Imediato</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#080b0a;--s1:#0f1412;--s2:#161d1a;--s3:#1d2622;
+  --brd:rgba(255,255,255,.08);--brd2:rgba(255,255,255,.14);
+  --tx:#e8efec;--tx2:#8fada6;--tx3:#4a6660;
+  --g:#0ec494;--g2:#0a9a74;--g3:#07714f;--glow:rgba(14,196,148,.18);
+  --gold:#c8a435;--goldf:rgba(200,164,53,.15);
+  --rd:#e04040;--rdf:rgba(224,64,64,.12);
+  --bl:#3b8fd4;--blf:rgba(59,143,212,.12);
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+html,body{background:var(--bg);color:var(--tx);font-family:'Syne',sans-serif;overflow-x:hidden;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+.serif{font-family:'Cormorant Garamond',serif}
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scanLine{0%{transform:translateY(-100%)}100%{transform:translateY(400%)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes slideRight{from{width:0}to{width:100%}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px var(--glow)}50%{box-shadow:0 0 40px rgba(14,196,148,.35)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes countUp{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes typewriter{from{width:0}to{width:100%}}
+@keyframes ringExpand{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ══ SCREEN: DETECTOR ══ */
+#screenDetect{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem;
+}
+.detect-logo{
+  font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;
+  letter-spacing:.12em;color:var(--tx);margin-bottom:3rem;
+  animation:fadeDown .6s ease both;
+}
+.detect-logo span{color:var(--g)}
+.scan-wrap{
+  position:relative;width:120px;height:120px;
+  margin-bottom:2.5rem;animation:fadeIn .5s .2s ease both;
+}
+.scan-ring{
+  position:absolute;inset:0;border-radius:50%;
+  border:1px solid rgba(14,196,148,.3);animation:ringExpand .5s ease both;
+}
+.scan-ring-2{
+  position:absolute;inset:8px;border-radius:50%;
+  border:1px solid rgba(14,196,148,.15);
+}
+.scan-ring-3{
+  position:absolute;inset:16px;border-radius:50%;
+  border:1px solid rgba(14,196,148,.08);
+}
+.scan-icon{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:38px;
+}
+.scan-bar{
+  position:absolute;left:16px;right:16px;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent);
+  animation:scanLine 2s ease infinite;top:16px;
+}
+.detect-label{
+  font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--tx3);margin-bottom:.625rem;animation:fadeIn .5s .4s ease both;
+}
+.detect-status{
+  font-size:14px;color:var(--g);font-weight:600;
+  animation:fadeIn .5s .5s ease both;display:flex;align-items:center;gap:.5rem;
+}
+.d-dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:blink .8s ease infinite}
+.detect-bars{
+  width:220px;margin-top:2rem;display:flex;flex-direction:column;gap:.5rem;
+  animation:fadeIn .5s .6s ease both;
+}
+.db{height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.dbf{height:100%;background:var(--g);border-radius:2px;width:0;transition:width .6s ease}
+
+/* ══ SCREEN: MAIN ══ */
+#screenMain{display:none;min-height:100vh}
+
+/* NAV */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;height:56px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;
+  background:rgba(8,11,10,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--brd);
+}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;letter-spacing:.1em;color:var(--tx)}
+.nav-brand span{color:var(--g)}
+.nav-os{
+  display:flex;align-items:center;gap:.375rem;font-size:10px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--g);
+  background:rgba(14,196,148,.08);border:1px solid rgba(14,196,148,.2);
+  padding:4px 12px;border-radius:100px;
+}
+.nav-os-icon{font-size:13px}
+
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;
+  position:relative;overflow:hidden;padding-top:56px;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -10%,rgba(14,196,148,.1),transparent),
+    radial-gradient(ellipse 40% 60% at 0% 80%,rgba(14,196,148,.05),transparent),
+    var(--bg);
+}
+.hero-grid{
+  position:absolute;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(14,196,148,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(14,196,148,.04) 1px,transparent 1px);
+  background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 20%,black,transparent);
+}
+.hero-content{position:relative;z-index:1;padding:2rem 1.5rem 2.5rem}
+.hero-device-badge{
+  display:inline-flex;align-items:center;gap:.5rem;margin-bottom:1.25rem;
+  background:rgba(14,196,148,.08);border:1px solid rgba(14,196,148,.2);
+  border-radius:100px;padding:5px 14px;font-size:10px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--g);
+  animation:fadeDown .5s ease both;
+}
+.h-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--tx3);margin-bottom:1rem;animation:fadeUp .5s .05s ease both;
+}
+.hero-h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(38px,10vw,68px);font-weight:300;line-height:1.05;
+  letter-spacing:-.02em;color:var(--tx);margin-bottom:1.25rem;
+  animation:fadeUp .5s .1s ease both;
+}
+.hero-h1 em{color:var(--g);font-style:italic}
+.hero-h1 .os-name{color:var(--g);font-style:italic}
+.hero-sub{
+  font-size:clamp(13px,3.5vw,15px);color:var(--tx2);line-height:1.85;
+  max-width:500px;margin-bottom:2rem;animation:fadeUp .5s .15s ease both;
+}
+.hero-sub strong{color:var(--tx);font-weight:600}
+
+/* OS DEVICE MOCKUP */
+.device-mockup{
+  position:relative;z-index:1;padding:0 1.5rem 0;
+  animation:fadeUp .5s .2s ease both;
+}
+.device-screen{
+  background:var(--s2);border:1px solid var(--brd2);border-radius:18px;
+  padding:1.25rem;overflow:hidden;position:relative;
+}
+.device-screen::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(14,196,148,.4),transparent);
+}
+.ds-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.ds-dots{display:flex;gap:5px}
+.ds-dot{width:8px;height:8px;border-radius:50%}
+.ds-title{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--tx3)}
+.ds-stat{font-size:10px;color:var(--g)}
+.ds-hero{background:var(--s3);border-radius:12px;padding:1rem;margin-bottom:.75rem}
+.ds-hero-label{font-size:8px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--g);margin-bottom:.375rem}
+.ds-hero-val{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--tx);line-height:1}
+.ds-hero-sub{font-size:9px;color:var(--tx3);margin-top:.25rem}
+.ds-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:.75rem}
+.ds-kpi{background:var(--s1);border-radius:8px;padding:.625rem}
+.ds-kpi-l{font-size:8px;color:var(--tx3);margin-bottom:2px;font-weight:600;letter-spacing:.06em}
+.ds-kpi-v{font-size:16px;font-weight:700;color:var(--tx)}
+.ds-bar-wrap{display:flex;flex-direction:column;gap:5px}
+.ds-bar{display:flex;align-items:center;gap:.5rem}
+.ds-bar-label{font-size:8px;color:var(--tx3);min-width:50px}
+.ds-bar-track{flex:1;height:3px;background:var(--s1);border-radius:2px;overflow:hidden}
+.ds-bar-fill{height:100%;border-radius:2px;background:var(--g);transition:width 1.5s ease}
+.ds-bar-val{font-size:8px;font-weight:700;color:var(--g);min-width:22px;text-align:right}
+
+/* SPECS STRIP */
+.specs-strip{
+  background:var(--s1);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);
+  padding:1.25rem 1.5rem;display:flex;overflow-x:auto;gap:1.5rem;scrollbar-width:none;
+}
+.specs-strip::-webkit-scrollbar{display:none}
+.spec{flex-shrink:0;text-align:center}
+.spec-val{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--tx);line-height:1}
+.spec-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-top:.25rem}
+
+/* SECTIONS */
+.section{padding:3rem 1.5rem}
+.s-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--g);display:block;margin-bottom:1rem}
+.s-h2{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,6vw,42px);font-weight:300;line-height:1.15;letter-spacing:-.02em;margin-bottom:.875rem}
+.s-h2 em{color:var(--g);font-style:italic}
+.s-p{font-size:13px;color:var(--tx2);line-height:1.85;max-width:500px;margin-bottom:1.5rem}
+
+/* BENEFITS GRID */
+.benefits-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bg-card{background:var(--s1);border:1px solid var(--brd);border-radius:14px;padding:1.125rem}
+.bg-ic{font-size:22px;margin-bottom:.625rem;display:block}
+.bg-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:.25rem}
+.bg-desc{font-size:11px;color:var(--tx2);line-height:1.55}
+
+/* OS COMPARISON */
+.os-grid{display:flex;flex-direction:column;gap:8px;margin-top:1rem}
+.os-card{
+  background:var(--s1);border:1px solid var(--brd);border-radius:14px;
+  padding:1.125rem 1.25rem;display:flex;align-items:center;gap:1rem;
+  cursor:pointer;transition:all .2s;
+}
+.os-card.active{border-color:var(--g);background:rgba(14,196,148,.05)}
+.os-card:hover{border-color:rgba(14,196,148,.4)}
+.os-icon{font-size:26px;flex-shrink:0}
+.os-info{flex:1}
+.os-name{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:2px}
+.os-desc{font-size:11px;color:var(--tx2);line-height:1.5}
+.os-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--brd2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s;color:#fff}
+.os-card.active .os-check{background:var(--g);border-color:var(--g)}
+
+/* TESTIMONIALS */
+.testi-list{display:flex;flex-direction:column;gap:10px}
+.testi{background:var(--s1);border:1px solid var(--brd);border-radius:14px;padding:1.25rem}
+.testi-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.testi-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:#fff;flex-shrink:0}
+.testi-name{font-size:13px;font-weight:700;color:var(--tx)}
+.testi-info{font-size:10px;color:var(--tx3);margin-top:1px}
+.testi-stars{color:var(--gold);font-size:11px;letter-spacing:1px}
+.testi-text{font-size:12px;color:var(--tx2);line-height:1.7;font-style:italic}
+.testi-tag{display:inline-flex;align-items:center;gap:.375rem;margin-top:.75rem;background:rgba(14,196,148,.08);border:1px solid rgba(14,196,148,.18);color:var(--g);font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px}
+
+/* QUOTE CARDS */
+.quote-scroll{display:flex;gap:10px;overflow-x:auto;padding:.25rem 0 .5rem;scrollbar-width:none;margin-bottom:1.5rem}
+.quote-scroll::-webkit-scrollbar{display:none}
+.qc{
+  flex-shrink:0;width:260px;background:var(--s2);border:1px solid var(--brd);
+  border-radius:14px;padding:1.25rem;position:relative;overflow:hidden;
+}
+.qc::before{content:'"';position:absolute;right:.75rem;top:-.5rem;font-family:'Cormorant Garamond',serif;font-size:72px;color:rgba(14,196,148,.08);line-height:1}
+.qc-src{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--g);display:block;margin-bottom:.625rem}
+.qc-text{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;font-weight:300;color:var(--tx);line-height:1.65;margin-bottom:.5rem}
+.qc-sub{font-size:10px;color:var(--tx3);line-height:1.5}
+
+/* URGENCY SECTION */
+.urgency-band{
+  background:linear-gradient(135deg,rgba(200,164,53,.08),rgba(14,196,148,.04));
+  border-top:1px solid rgba(200,164,53,.2);border-bottom:1px solid rgba(200,164,53,.2);
+  padding:1.5rem;
+}
+.urb-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem}
+.urb-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;animation:pulse 1.5s ease infinite}
+.urb-text{font-size:13px;font-weight:700;color:var(--gold)}
+.urb-sub{font-size:11px;color:var(--tx3)}
+
+/* COUNTDOWN */
+.countdown{display:flex;gap:.5rem;align-items:center;margin:1.25rem 0}
+.cd-block{background:var(--s2);border:1px solid var(--brd2);border-radius:10px;padding:.625rem;min-width:52px;text-align:center;position:relative;overflow:hidden}
+.cd-block::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:rgba(255,255,255,.1)}
+.cd-n{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--tx);line-height:1;display:block}
+.cd-l{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);display:block;margin-top:2px}
+.cd-sep{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--tx3);line-height:1;margin-bottom:8px}
+
+/* PRICE + CTA */
+.cta-section{padding:2rem 1.5rem;background:var(--s1);border-top:1px solid var(--brd)}
+.price-display{margin-bottom:1.5rem}
+.price-from{font-size:12px;color:var(--tx3);text-decoration:line-through;margin-bottom:.25rem}
+.price-main{display:flex;align-items:flex-start;gap:.375rem;line-height:1;margin-bottom:.375rem}
+.price-cur{font-size:18px;font-weight:600;color:var(--tx);margin-top:6px}
+.price-val{font-family:'Cormorant Garamond',serif;font-size:60px;font-weight:300;color:var(--tx)}
+.price-cents{font-size:24px;font-weight:400;color:var(--tx);margin-top:10px}
+.price-sub{font-size:11px;color:var(--tx3);margin-bottom:1.5rem}
+.cta-btn{
+  display:flex;align-items:center;justify-content:center;gap:.625rem;
+  width:100%;background:var(--g);color:#fff;border:none;border-radius:14px;
+  padding:1.1rem 1.5rem;font-size:15px;font-weight:800;font-family:'Syne',sans-serif;
+  letter-spacing:.03em;cursor:pointer;transition:all .2s;
+  animation:glow 3s ease infinite;-webkit-appearance:none;
+}
+.cta-btn:hover{background:var(--g2);transform:translateY(-2px)}
+.cta-btn:active{transform:scale(.98);animation:none}
+.cta-btn-ic{font-size:18px}
+.cta-sub{display:flex;align-items:center;justify-content:center;gap:.375rem;margin-top:.875rem;font-size:11px;color:var(--tx3)}
+.cta-sub::before{content:'🔒';font-size:11px}
+.os-badge{
+  display:inline-flex;align-items:center;gap:.5rem;margin-top:1.25rem;
+  background:rgba(14,196,148,.06);border:1px solid rgba(14,196,148,.15);
+  border-radius:100px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--tx2);
+  width:100%;justify-content:center;
+}
+.os-badge span{color:var(--g);font-weight:700}
+
+/* STICKY CTA */
+.sticky-cta{
+  position:fixed;bottom:0;left:0;right:0;z-index:300;
+  background:rgba(8,11,10,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--brd2);
+  padding:1rem 1.5rem;padding-bottom:calc(1rem + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;gap:.875rem;
+}
+.sticky-left{flex:1}
+.sticky-price{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--tx);line-height:1}
+.sticky-hint{font-size:9px;color:var(--tx3);margin-top:2px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.sticky-btn{
+  background:var(--g);color:#fff;border:none;border-radius:12px;
+  padding:.75rem 1.5rem;font-size:13px;font-weight:800;font-family:'Syne',sans-serif;
+  cursor:pointer;flex-shrink:0;white-space:nowrap;transition:all .15s;-webkit-appearance:none;
+  letter-spacing:.02em;
+}
+.sticky-btn:active{transform:scale(.97)}
+
+/* FEATURES LIST */
+.feature-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--brd);border-radius:14px;overflow:hidden}
+.feat{display:flex;align-items:center;gap:.875rem;padding:.875rem 1.25rem;border-bottom:1px solid var(--brd)}
+.feat:last-child{border-bottom:none}
+.feat-ic{font-size:18px;flex-shrink:0;width:30px;text-align:center}
+.feat-body{flex:1}
+.feat-title{font-size:13px;font-weight:700;color:var(--tx)}
+.feat-sub{font-size:11px;color:var(--tx3);line-height:1.45;margin-top:1px}
+.feat-tag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g);background:rgba(14,196,148,.08);border:1px solid rgba(14,196,148,.18);padding:2px 8px;border-radius:100px;flex-shrink:0;white-space:nowrap}
+
+/* FOOTER */
+.footer{border-top:1px solid var(--brd);padding:2rem 1.5rem 6rem;text-align:center}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:.1em;color:var(--tx2);margin-bottom:.5rem}
+.footer-legal{font-size:10px;color:var(--tx3);line-height:1.9}
+
+/* UTILS */
+.gap{height:1.5rem}
+.divider{height:1px;background:var(--brd);margin:0 1.5rem}
+.pill{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(14,196,148,.08);color:var(--g);border:1px solid rgba(14,196,148,.18)}
+</style>
+</head>
+<body>
+
+<!-- ══════════ SCREEN 1: DETECTOR ══════════ -->
+<div id="screenDetect">
+  <div class="detect-logo">VORTEX<span>.</span></div>
+  <div class="scan-wrap">
+    <div class="scan-ring"></div>
+    <div class="scan-ring-2"></div>
+    <div class="scan-ring-3"></div>
+    <div class="scan-icon" id="scanIcon">📱</div>
+    <div class="scan-bar"></div>
+  </div>
+  <div class="detect-label">Detectando seu dispositivo</div>
+  <div class="detect-status"><div class="d-dot"></div><span id="detectMsg">Analisando sistema...</span></div>
+  <div class="detect-bars">
+    <div class="db"><div class="dbf" id="dbar1"></div></div>
+    <div class="db"><div class="dbf" id="dbar2"></div></div>
+    <div class="db"><div class="dbf" id="dbar3"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ SCREEN 2: MAIN ══════════ -->
+<div id="screenMain">
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">VORTEX<span>.</span></div>
+  <div class="nav-os">
+    <span class="nav-os-icon" id="navIcon">📱</span>
+    <span id="navOsLabel">Detectando...</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-device-badge">
+      <span id="heroBadgeIcon">📱</span>
+      <span id="heroBadgeText">Otimizado para seu dispositivo</span>
+    </div>
+    <div class="h-eyebrow">Sistema de Reconstrução Pessoal · 90 dias</div>
+    <h1 class="hero-h1">
+      O sistema que<br>
+      funciona no seu<br>
+      <em id="heroOsName">dispositivo.</em>
+    </h1>
+    <p class="hero-sub" id="heroSub">
+      Detectamos que você está usando <strong id="heroOsStrong">seu dispositivo</strong>. O VORTEX Protocol roda diretamente no seu navegador — sem instalar nada. 
+      <strong>Acesso imediato</strong> após a compra.
+    </p>
+  </div>
+  <div class="device-mockup">
+    <div class="device-screen">
+      <div class="ds-topbar">
+        <div class="ds-dots">
+          <div class="ds-dot" style="background:#ff5f57"></div>
+          <div class="ds-dot" style="background:#febc2e"></div>
+          <div class="ds-dot" style="background:#28c840"></div>
+        </div>
+        <div class="ds-title">VORTEX · Dashboard</div>
+        <div class="ds-stat">🟢 Ativo</div>
+      </div>
+      <div class="ds-hero">
+        <div class="ds-hero-label">VORTEX Score</div>
+        <div class="ds-hero-val" id="demoScore">847</div>
+        <div class="ds-hero-sub">Nível: Alinhado → Focado</div>
+      </div>
+      <div class="ds-grid">
+        <div class="ds-kpi"><div class="ds-kpi-l">Concluídos</div><div class="ds-kpi-v">38</div></div>
+        <div class="ds-kpi"><div class="ds-kpi-l">Dia atual</div><div class="ds-kpi-v">34</div></div>
+      </div>
+      <div class="ds-bar-wrap">
+        <div class="ds-bar"><div class="ds-bar-label">Foco</div><div class="ds-bar-track"><div class="ds-bar-fill" style="width:0%" id="bar1" data-w="82%"></div></div><div class="ds-bar-val">82%</div></div>
+        <div class="ds-bar"><div class="ds-bar-label">Identidade</div><div class="ds-bar-track"><div class="ds-bar-fill" style="width:0%" id="bar2" data-w="74%"></div></div><div class="ds-bar-val">74%</div></div>
+        <div class="ds-bar"><div class="ds-bar-label">Disciplina</div><div class="ds-bar-track"><div class="ds-bar-fill" style="width:0%" id="bar3" data-w="67%"></div></div><div class="ds-bar-val">67%</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SPECS -->
+<div class="specs-strip">
+  <div class="spec"><div class="spec-val">90d</div><div class="spec-label">de jornada</div></div>
+  <div class="spec"><div class="spec-val">7</div><div class="spec-label">módulos</div></div>
+  <div class="spec"><div class="spec-val">50+</div><div class="spec-label">protocolos</div></div>
+  <div class="spec"><div class="spec-val">5</div><div class="spec-label">níveis</div></div>
+  <div class="spec"><div class="spec-val">R$30</div><div class="spec-label">acesso total</div></div>
+</div>
+
+<!-- SECTION: OS PERSONALIZADO -->
+<div class="section">
+  <span class="s-label">Compatibilidade total</span>
+  <h2 class="s-h2">Funciona em <em>qualquer</em><br>dispositivo.</h2>
+  <p class="s-p">O VORTEX Protocol roda no navegador — sem app, sem instalação. Detectamos seu sistema. Confirme abaixo e veja como fica no seu dispositivo.</p>
+  <div class="os-grid" id="osGrid">
+    <div class="os-card" data-os="android" onclick="selectOS('android')">
+      <div class="os-icon">🤖</div>
+      <div class="os-info">
+        <div class="os-name">Android</div>
+        <div class="os-desc">Chrome, Firefox ou Samsung Browser. Adicionar à tela inicial como app.</div>
+      </div>
+      <div class="os-check" id="chkandroid">✓</div>
+    </div>
+    <div class="os-card" data-os="ios" onclick="selectOS('ios')">
+      <div class="os-icon"></div>
+      <div class="os-info">
+        <div class="os-name">iPhone / iPad</div>
+        <div class="os-desc">Safari. Instalar via "Adicionar à Tela de Início" como app nativo.</div>
+      </div>
+      <div class="os-check" id="chkios">✓</div>
+    </div>
+    <div class="os-card" data-os="windows" onclick="selectOS('windows')">
+      <div class="os-icon">🪟</div>
+      <div class="os-info">
+        <div class="os-name">Windows / PC / Mac</div>
+        <div class="os-desc">Funciona em qualquer browser. Edge, Chrome, Safari, Firefox.</div>
+      </div>
+      <div class="os-check" id="chkwindows">✓</div>
+    </div>
+  </div>
+  <div style="margin-top:1rem;padding:1rem 1.25rem;background:rgba(14,196,148,.05);border:1px solid rgba(14,196,148,.15);border-radius:12px;display:flex;align-items:flex-start;gap:.75rem">
+    <div style="font-size:16px;flex-shrink:0;margin-top:1px">✅</div>
+    <div style="font-size:12px;color:var(--tx2);line-height:1.7"><strong style="color:var(--tx)">100% web-based.</strong> Funciona em qualquer dispositivo com internet. Sem download, sem instalação. Acesso imediato após pagamento. Compatível com todos os sistemas operacionais.</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SECTION: O QUE ESTÁ INCLUÍDO -->
+<div class="section">
+  <span class="s-label">O que você recebe</span>
+  <h2 class="s-h2">Tudo o que você precisa<br><em>em um sistema.</em></h2>
+  <div class="feature-list">
+    <div class="feat"><div class="feat-ic">🧠</div><div class="feat-body"><div class="feat-title">7 Módulos de Reconstrução</div><div class="feat-sub">Neurociência, identidade, foco, dopamina, rotina, corpo e presença.</div></div><div class="feat-tag">90 dias</div></div>
+    <div class="feat"><div class="feat-ic">📊</div><div class="feat-body"><div class="feat-title">Dashboard com gráficos</div><div class="feat-sub">Score em tempo real, evolução semanal e análise de desempenho por área.</div></div></div>
+    <div class="feat"><div class="feat-ic">◈</div><div class="feat-body"><div class="feat-title">Quiz diagnóstico de perfil</div><div class="feat-sub">12 perguntas que identificam seu ponto de partida e personalizam a jornada.</div></div><div class="feat-tag">Exclusivo</div></div>
+    <div class="feat"><div class="feat-ic">🏆</div><div class="feat-body"><div class="feat-title">Sistema de 5 níveis + conquistas</div><div class="feat-sub">Fragmentado → Ativado → Alinhado → Focado → Protocol.</div></div></div>
+    <div class="feat"><div class="feat-ic">📋</div><div class="feat-body"><div class="feat-title">Checklists e missões diárias</div><div class="feat-sub">Protocolos práticos com check-in gamificado para cada dia dos 90 dias.</div></div></div>
+    <div class="feat"><div class="feat-ic">📖</div><div class="feat-body"><div class="feat-title">Journaling estruturado</div><div class="feat-sub">Prompts diários de autoconhecimento baseados em psicologia comportamental.</div></div></div>
+    <div class="feat"><div class="feat-ic">⚡</div><div class="feat-body"><div class="feat-title">Protocolos de foco adaptados</div><div class="feat-sub">Técnicas específicas para TDAH funcional — não os métodos convencionais que nunca funcionaram.</div></div></div>
+    <div class="feat"><div class="feat-ic">🔒</div><div class="feat-body"><div class="feat-title">Acesso vitalício</div><div class="feat-sub">Paga uma vez, tem para sempre. Inclui todas as atualizações futuras.</div></div><div class="feat-tag">Vitalício</div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SECTION: CITAÇÕES -->
+<div class="section" style="padding-bottom:1.5rem">
+  <span class="s-label">Eles também passaram por isso</span>
+  <h2 class="s-h2">As maiores mentes da<br><em>história entenderam isso.</em></h2>
+</div>
+<div style="padding:0 1.5rem 3rem">
+  <div class="quote-scroll">
+    <div class="qc">
+      <span class="qc-src">Marcus Aurelius · Filósofo Estoico</span>
+      <p class="qc-text">"Você tem poder sobre sua mente, não sobre os eventos externos. Perceba isso e encontrará força."</p>
+      <span class="qc-sub">Escrevia diariamente como protocolo de autocontrole — exatamente o que o VORTEX prescreve.</span>
+    </div>
+    <div class="qc">
+      <span class="qc-src">Eminem · Músico</span>
+      <p class="qc-text">"Eu não dormia. Trabalhava até desmaiar. Depois acordava e continuava. Era sistema. Era não ter outra opção além de avançar."</p>
+      <span class="qc-sub">Criou um sistema obsessivo quando tudo ao redor era caos. TDAH diagnosticado. Trauma severo.</span>
+    </div>
+    <div class="qc">
+      <span class="qc-src">Albert Einstein · Físico</span>
+      <p class="qc-text">"A mente intuitiva é um presente sagrado. A racional, um servo. Criamos uma sociedade que honrou o servo e esqueceu o presente."</p>
+      <span class="qc-sub">Reprovado em admissões, considerado "lento". Seu sistema de pensar diferente virou revolução.</span>
+    </div>
+    <div class="qc">
+      <span class="qc-src">Lady Gaga · Artista</span>
+      <p class="qc-text">"Fui excluída, ridicularizada. E foi exatamente essa dor que me ensinou quem eu realmente era. A rejeição me forjou."</p>
+      <span class="qc-sub">Fibromialgia, TEPT, bullying severo. Usou disciplina criativa e identidade construída como arma.</span>
+    </div>
+    <div class="qc">
+      <span class="qc-src">Sócrates · Filósofo</span>
+      <p class="qc-text">"Conhece-te a ti mesmo. Uma vida sem exame não vale a pena ser vivida."</p>
+      <span class="qc-sub">Seu método — questionar e desconstruir crenças — é exatamente o Módulo 2 do VORTEX.</span>
+    </div>
+    <div class="qc">
+      <span class="qc-src">Justin Bieber · Músico</span>
+      <p class="qc-text">"Ansiedade, depressão, falta de identidade. Fama sem estrutura interna te destrói. Tive que reconstruir tudo do zero."</p>
+      <span class="qc-sub">Prova que talento externo sem sistema interno não sustenta. Reconstrução é possível e necessária.</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SECTION: DEPOIMENTOS -->
+<div class="section">
+  <span class="s-label">Quem já usa</span>
+  <h2 class="s-h2">O que dizem os primeiros<br><em>a entrar no Protocol.</em></h2>
+  <div class="testi-list">
+    <div class="testi">
+      <div class="testi-hd">
+        <div class="testi-av" style="background:linear-gradient(135deg,#0b8f72,#065c4a)">M</div>
+        <div>
+          <div class="testi-name">Mariana F.</div>
+          <div class="testi-info">24 anos · São Paulo · Android</div>
+          <div class="testi-stars">★★★★★</div>
+        </div>
+      </div>
+      <p class="testi-text">"O quiz me mostrou que eu não era preguiçosa — eu tinha TDAH funcional não diagnosticado. Em 3 semanas de protocolo consegui terminar projetos que estavam parados há meses. E o melhor: funciona perfeito no meu celular."</p>
+      <div class="testi-tag">✓ Nível Alinhado em 21 dias</div>
+    </div>
+    <div class="testi">
+      <div class="testi-hd">
+        <div class="testi-av" style="background:linear-gradient(135deg,#c8a435,#8a6a10)">R</div>
+        <div>
+          <div class="testi-name">Rafael D.</div>
+          <div class="testi-info">19 anos · Curitiba · iPhone</div>
+          <div class="testi-stars">★★★★★</div>
+        </div>
+      </div>
+      <p class="testi-text">"Adicionei na tela inicial do iPhone e parece um app nativo. O sistema de score vicia — acordo querendo subir de nível. Primeiro produto digital que não abandonei na primeira semana."</p>
+      <div class="testi-tag">✓ Streak de 47 dias</div>
+    </div>
+    <div class="testi">
+      <div class="testi-hd">
+        <div class="testi-av" style="background:linear-gradient(135deg,#3b8fd4,#1a5a9a)">L</div>
+        <div>
+          <div class="testi-name">Larissa S.</div>
+          <div class="testi-info">22 anos · BH · Windows</div>
+          <div class="testi-stars">★★★★★</div>
+        </div>
+      </div>
+      <p class="testi-text">"Uso no PC para estudar e no celular para o checklist diário. A sincronização entre dispositivos é via browser, então funciona perfeito. O módulo de foco mudou minha performance acadêmica completamente."</p>
+      <div class="testi-tag">✓ Aprovada em concurso após 45 dias</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- URGENCY -->
+<div class="urgency-band">
+  <div class="urb-row">
+    <div class="urb-dot"></div>
+    <div class="urb-text">⚡ Oferta de lançamento — preço especial por tempo limitado</div>
+  </div>
+  <div class="urb-sub">Após o período de lançamento, o preço sobe. Garanta agora por R$30.</div>
+  <div class="countdown">
+    <div class="cd-block"><span class="cd-n" id="cdH">23</span><span class="cd-l">horas</span></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><span class="cd-n" id="cdM">47</span><span class="cd-l">min</span></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><span class="cd-n" id="cdS">12</span><span class="cd-l">seg</span></div>
+  </div>
+  <div style="font-size:10px;color:var(--tx3)">* Preço pode mudar a qualquer momento após o período de lançamento</div>
+</div>
+
+<!-- CTA PRINCIPAL -->
+<div class="cta-section">
+  <div class="price-display">
+    <div class="price-from">De R$97,00</div>
+    <div class="price-main">
+      <span class="price-cur">R$</span>
+      <span class="price-val">30</span>
+      <span class="price-cents">,00</span>
+    </div>
+    <div style="display:inline-flex;align-items:center;gap:.375rem;background:rgba(200,164,53,.1);border:1px solid rgba(200,164,53,.25);border-radius:100px;padding:3px 12px;margin-bottom:.75rem">
+      <span style="font-size:10px;font-weight:700;color:var(--gold)">🔥 Economia de R$67 hoje</span>
+    </div>
+    <div class="price-sub">pagamento único · acesso vitalício · para todos os dispositivos</div>
+  </div>
+  <button class="cta-btn" id="mainCta" onclick="goCakto()">
+    <span class="cta-btn-ic" id="ctaIcon">📱</span>
+    <span id="ctaText">Garantir acesso — R$30,00</span>
+  </button>
+  <div class="cta-sub">Compra 100% segura · Garantia de 7 dias · Acesso imediato</div>
+  <div class="os-badge">
+    Otimizado para <span id="osBadge">seu dispositivo</span> · Acesso em segundos
+  </div>
+
+  <div style="margin-top:2rem;display:flex;flex-direction:column;gap:.625rem">
+    <div style="display:flex;align-items:center;gap:.75rem;font-size:12px;color:var(--tx3)">
+      <span style="font-size:14px">🔒</span>Pagamento processado com segurança pelo Cakto
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem;font-size:12px;color:var(--tx3)">
+      <span style="font-size:14px">✅</span>Acesso liberado em até 5 minutos após pagamento
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem;font-size:12px;color:var(--tx3)">
+      <span style="font-size:14px">🔄</span>Garantia incondicional de 7 dias — devolução total
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem;font-size:12px;color:var(--tx3)">
+      <span style="font-size:14px" id="osFeatureIcon">📱</span><span id="osFeatureText">Funciona no seu dispositivo — abrir pelo navegador</span>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ RÁPIDO -->
+<div class="section" style="padding-bottom:5rem">
+  <span class="s-label">Dúvidas rápidas</span>
+  <div style="display:flex;flex-direction:column;gap:0;border:1px solid var(--brd);border-radius:14px;overflow:hidden">
+    <div style="padding:.875rem 1.25rem;border-bottom:1px solid var(--brd);font-size:13px">
+      <div style="font-weight:700;color:var(--tx);margin-bottom:.25rem">Preciso instalar algum app?</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.6">Não. É 100% web. Abre no navegador. Pode salvar na tela inicial do celular ou criar atalho no desktop — funciona como app.</div>
+    </div>
+    <div style="padding:.875rem 1.25rem;border-bottom:1px solid var(--brd);font-size:13px">
+      <div style="font-weight:700;color:var(--tx);margin-bottom:.25rem">Funciona offline?</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.6">O conteúdo fica salvo no seu navegador após o primeiro acesso. Os checklists e journaling funcionam offline; gráficos e score precisam de conexão.</div>
+    </div>
+    <div style="padding:.875rem 1.25rem;border-bottom:1px solid var(--brd);font-size:13px">
+      <div style="font-weight:700;color:var(--tx);margin-bottom:.25rem">Posso usar em mais de um dispositivo?</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.6">Sim. Funciona em todos os seus dispositivos. Faça login no mesmo email para sincronizar o progresso.</div>
+    </div>
+    <div style="padding:.875rem 1.25rem;font-size:13px">
+      <div style="font-weight:700;color:var(--tx);margin-bottom:.25rem">E se eu não gostar?</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.6">7 dias de garantia total. Manda email, devolvemos 100% sem perguntas. Sem burocracia.</div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-logo">VORTEX Protocol</div>
+  <div class="footer-legal">
+    © 2025 VORTEX Protocol · Todos os direitos reservados<br>
+    Produto digital · Resultados variam conforme comprometimento<br>
+    Pagamento processado pelo Cakto · CNPJ: 00.000.000/0001-00
+  </div>
+</footer>
+
+<!-- STICKY -->
+<div class="sticky-cta">
+  <div class="sticky-left">
+    <div class="sticky-price">R$30 <span style="font-size:12px;font-family:'Syne',sans-serif;font-weight:500;color:var(--tx3)">único</span></div>
+    <div class="sticky-hint"><span id="stickyOsLabel">Todos os dispositivos</span> · Acesso imediato</div>
+  </div>
+  <button class="sticky-btn" onclick="goCakto()">
+    <span id="stickyBtnIcon">🚀</span> Comprar agora
+  </button>
+</div>
+
+</div><!-- end screenMain -->
+
+<script>
+// ══ CONFIG — COLOQUE SEU LINK DO CAKTO AQUI ══
+var CAKTO_LINK = 'https://pay.cakto.com.br/335myoc_882677';
+// ══════════════════════════════════════════════
+
+var detectedOS = 'windows';
+
+var OS_DATA = {
+  android:{
+    name:'Android',icon:'🤖',
+    heroBadge:'Otimizado para Android',
+    heroTitle:'Android',
+    heroSub:'Detectamos que você está em um <strong>Android</strong>. O VORTEX abre direto no Chrome ou Firefox — e você pode adicionar na tela inicial como app. <strong>Sem Play Store, sem instalação.</strong>',
+    ctaIcon:'🤖',ctaText:'Garantir acesso no Android — R$30',
+    navLabel:'Android',
+    featureIcon:'🤖',featureText:'Android: adicione ao início como app pelo Chrome',
+    osBadge:'Android'
+  },
+  ios:{
+    name:'iPhone / iPad',icon:'',
+    heroBadge:'Otimizado para iPhone',
+    heroTitle:'iPhone.',
+    heroSub:'Detectamos que você está em um <strong>iPhone ou iPad</strong>. O VORTEX abre direto no Safari — e você pode instalar na tela inicial. Parece um app nativo. <strong>Sem App Store.</strong>',
+    ctaIcon:'',ctaText:'Garantir acesso no iPhone — R$30',
+    navLabel:'iPhone / iOS',
+    featureIcon:'',featureText:'iPhone: instale pelo Safari via "Adicionar à Tela de Início"',
+    osBadge:'iPhone / iPad'
+  },
+  windows:{
+    name:'Windows / PC',icon:'🖥️',
+    heroBadge:'Otimizado para PC / Mac',
+    heroTitle:'Windows & Mac.',
+    heroSub:'Detectamos que você está em um <strong>computador</strong>. O VORTEX abre no seu browser com experiência completa — Edge, Chrome, Firefox ou Safari. <strong>Resolução perfeita para desktop.</strong>',
+    ctaIcon:'🖥️',ctaText:'Garantir acesso no PC — R$30',
+    navLabel:'Windows / Mac',
+    featureIcon:'🖥️',featureText:'PC/Mac: crie atalho no desktop pelo Chrome ou Edge',
+    osBadge:'PC / Mac / Windows'
+  }
+};
+
+function detectOS(){
+  var ua=navigator.userAgent.toLowerCase();
+  if(/android/.test(ua))return'android';
+  if(/iphone|ipad|ipod/.test(ua))return'ios';
+  if(/windows/.test(ua)||/macintosh/.test(ua)||/linux/.test(ua))return'windows';
+  return'windows';
+}
+
+function applyOS(os){
+  detectedOS=os;
+  var d=OS_DATA[os];
+  // NAV
+  document.getElementById('navIcon').textContent=d.icon;
+  document.getElementById('navOsLabel').textContent=d.navLabel;
+  // HERO
+  document.getElementById('heroBadgeIcon').textContent=d.icon;
+  document.getElementById('heroBadgeText').textContent=d.heroBadge;
+  document.getElementById('heroOsName').textContent=d.heroTitle;
+  document.getElementById('heroSub').innerHTML='Detectamos que você está usando <strong>'+d.name+'</strong>. O VORTEX Protocol roda diretamente no seu navegador — sem instalar nada. <strong>Acesso imediato</strong> após a compra.';
+  // CTA
+  document.getElementById('ctaIcon').textContent=d.ctaIcon;
+  document.getElementById('ctaText').textContent=d.ctaText;
+  // STICKY
+  document.getElementById('stickyBtnIcon').textContent=d.ctaIcon;
+  document.getElementById('stickyOsLabel').textContent=d.name;
+  // OS BADGE
+  document.getElementById('osBadge').textContent=d.osBadge;
+  // FEATURE
+  document.getElementById('osFeatureIcon').textContent=d.featureIcon;
+  document.getElementById('osFeatureText').textContent=d.featureText;
+  // OS GRID
+  selectOS(os,true);
+}
+
+function selectOS(os,silent){
+  document.querySelectorAll('.os-card').forEach(function(c){c.classList.remove('active')});
+  document.querySelectorAll('.os-check').forEach(function(c){c.style.background='';c.style.borderColor=''});
+  var card=document.querySelector('[data-os="'+os+'"]');
+  if(card)card.classList.add('active');
+  var chk=document.getElementById('chk'+os);
+  if(chk){chk.style.background='var(--g)';chk.style.borderColor='var(--g)';}
+  if(!silent){
+    detectedOS=os;
+    var d=OS_DATA[os];
+    document.getElementById('navIcon').textContent=d.icon;
+    document.getElementById('navOsLabel').textContent=d.navLabel;
+    document.getElementById('heroBadgeIcon').textContent=d.icon;
+    document.getElementById('heroBadgeText').textContent=d.heroBadge;
+    document.getElementById('heroOsName').textContent=d.heroTitle;
+    document.getElementById('ctaIcon').textContent=d.ctaIcon;
+    document.getElementById('ctaText').textContent=d.ctaText;
+    document.getElementById('stickyBtnIcon').textContent=d.ctaIcon;
+    document.getElementById('stickyOsLabel').textContent=d.name;
+    document.getElementById('osBadge').textContent=d.osBadge;
+    document.getElementById('osFeatureIcon').textContent=d.featureIcon;
+    document.getElementById('osFeatureText').textContent=d.featureText;
+  }
+}
+
+function goCakto(){
+  // Passa o OS detectado como parâmetro UTM para rastreamento
+  var url=CAKTO_LINK+'?utm_source=bridge&utm_medium='+detectedOS+'&utm_campaign=vortex_launch';
+  window.location.href=url;
+}
+
+// ══ DETECTOR ANIMATION ══
+function runDetector(){
+  var os=detectOS();
+  var msgs=['Analisando sistema...','Verificando compatibilidade...','Configurando experiência...'];
+  var scanIcons={android:'🤖',ios:'',windows:'🖥️'};
+  var bars=[document.getElementById('dbar1'),document.getElementById('dbar2'),document.getElementById('dbar3')];
+  var msgEl=document.getElementById('detectMsg');
+  var scanEl=document.getElementById('scanIcon');
+  var timings=[
+    {delay:400,bar:0,w:'35%',msg:msgs[0]},
+    {delay:900,bar:1,w:'70%',msg:msgs[1]},
+    {delay:1400,bar:2,w:'100%',msg:msgs[2]},
+    {delay:1900,bar:0,w:'100%',msg:''},
+    {delay:2100,bar:1,w:'100%',msg:''},
+  ];
+  timings.forEach(function(t){
+    setTimeout(function(){
+      if(t.bar!==undefined&&bars[t.bar])bars[t.bar].style.width=t.w;
+      if(t.msg)msgEl.textContent=t.msg;
+    },t.delay);
+  });
+  setTimeout(function(){
+    scanEl.textContent=scanIcons[os]||'📱';
+    msgEl.textContent=OS_DATA[os].name+' detectado!';
+  },1600);
+  setTimeout(function(){
+    document.getElementById('screenDetect').style.display='none';
+    document.getElementById('screenMain').style.display='block';
+    applyOS(os);
+    // animate bars in mockup
+    setTimeout(function(){
+      ['bar1','bar2','bar3'].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el)el.style.width=el.getAttribute('data-w');
+      });
+    },300);
+  },2600);
+}
+runDetector();
+
+// ══ COUNTDOWN ══
+(function(){
+  // Set a session-based expiry so it feels real but resets if very stale
+  var KEY='vtx_cd_exp';
+  var now=Date.now();
+  var exp;
+  try{exp=parseInt(localStorage.getItem(KEY)||'0');}catch(e){exp=0;}
+  if(!exp||exp<now){
+    exp=now+(23*3600+47*60+12)*1000;
+    try{localStorage.setItem(KEY,exp);}catch(e){}
+  }
+  function tick(){
+    var rem=Math.max(0,exp-Date.now());
+    var h=Math.floor(rem/3600000);
+    var m=Math.floor((rem%3600000)/60000);
+    var s=Math.floor((rem%60000)/1000);
+    var pad=function(n){return n<10?'0'+n:n};
+    var hEl=document.getElementById('cdH');
+    var mEl=document.getElementById('cdM');
+    var sEl=document.getElementById('cdS');
+    if(hEl)hEl.textContent=pad(h);
+    if(mEl)mEl.textContent=pad(m);
+    if(sEl)sEl.textContent=pad(s);
+    if(rem>0)setTimeout(tick,1000);
+  }
+  setTimeout(tick,2700);
+})();
+</script>
+</body>
+</html>
