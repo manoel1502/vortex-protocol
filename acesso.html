@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f7f6f2">
+<title>VORTEX Protocol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  window.VORTEX_CONFIG = {
+    productName:      'VORTEX Protocol',
+    caktoCheckout:    'https://pay.cakto.com.br/335myoc_882677',
+    sessionHours:     72,
+    enableToken:      true,
+    enableWatermark:  true,
+    enableDevTools:   true,
+    enableKeyboard:   true,
+    enableRightClick: true,
+    enableSelection:  true,
+    enablePrint:      true,
+    enableFrameBust:  true,
+    enableConsole:    true,
+    watermarkOpacity: 0.045,
+  };
+</script>
+<script src="vortex-shield.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+:root{
+  --bg:#f7f6f2;--surface:#ffffff;--brd:#e4e2db;--brd2:#ccc9bf;
+  --ink:#0d0d0a;--ink2:#4a4940;--ink3:#8a8880;
+  --teal:#0b8f72;--teal2:#096e57;--teal-bg:#eaf6f2;--teal-brd:#b0ddd0;
+  --dark:#0f0f0c;--dark2:#1c1c18;
+  --a-bg:#f4f3ef;--a-surface:#fff;--a-brd:#e8e6e0;--a-brd2:#d0cdc4;
+  --r:14px;--r2:10px;--r3:20px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+html,body{font-family:'Syne',system-ui,sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;line-height:1.6;-webkit-font-smoothing:antialiased}
+.serif{font-family:'Cormorant Garamond',serif}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:scale(1)}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes lineDraw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes gradShift{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+.au{animation:fadeUp .5s ease both}
+
+/* ─────────────────────────────────────
+   LANDING
+───────────────────────────────────── */
+#landingView{display:block;min-height:100vh;padding-bottom:80px}
+
+/* TOPBAR */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:60px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.75rem;
+  background:rgba(247,246,242,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--brd);
+}
+.tb-brand{display:flex;align-items:baseline;gap:.5rem}
+.tb-logo{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;letter-spacing:.06em;color:var(--ink)}
+.tb-proto{font-size:8px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);padding:2px 8px;border:1px solid var(--teal-brd);background:var(--teal-bg);border-radius:100px}
+.tb-cta{background:var(--teal);color:#fff;border:none;border-radius:100px;padding:.45rem 1.25rem;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.03em;cursor:pointer;transition:all .2s}
+.tb-cta:hover{background:var(--teal2);transform:translateY(-1px)}
+.tb-cta:active{transform:scale(.97)}
+
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  padding:calc(60px + 5vh) 1.75rem 5vh;
+  position:relative;overflow:hidden;
+}
+.hero-ghost{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);
+  font-family:'Cormorant Garamond',serif;font-size:clamp(100px,22vw,240px);
+  font-weight:300;color:rgba(11,143,114,.04);letter-spacing:-.04em;
+  line-height:1;white-space:nowrap;pointer-events:none;user-select:none;
+  font-style:italic;
+}
+.hero-content{max-width:680px;position:relative;z-index:1}
+.hero-eyebrow{
+  display:flex;align-items:center;gap:.75rem;margin-bottom:2rem;
+  animation:fadeUp .6s ease both;
+}
+.he-line{width:20px;height:1px;background:var(--teal)}
+.he-text{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal)}
+.hero-h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(44px,8.5vw,86px);font-weight:300;
+  line-height:1.05;letter-spacing:-.025em;color:var(--ink);
+  margin-bottom:1.5rem;animation:fadeUp .6s .08s ease both;
+}
+.hero-h1 em{font-style:italic}
+.hero-sub{
+  font-size:clamp(14px,2.5vw,16px);color:var(--ink2);line-height:1.85;
+  max-width:500px;margin-bottom:2.5rem;font-weight:400;
+  animation:fadeUp .6s .16s ease both;
+}
+.hero-sub strong{color:var(--ink);font-weight:600}
+.hero-actions{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:3.5rem;animation:fadeUp .6s .24s ease both}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:var(--teal);color:#fff;border:none;border-radius:100px;
+  padding:.9rem 2rem;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;
+  letter-spacing:.03em;cursor:pointer;transition:all .2s;text-decoration:none;
+}
+.btn-primary:hover{background:var(--teal2);transform:translateY(-2px);box-shadow:0 10px 28px rgba(11,143,114,.22)}
+.btn-primary:active{transform:scale(.97)}
+.btn-text{font-size:13px;color:var(--ink3);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-family:'Syne',sans-serif;font-weight:500}
+.hero-proof{display:flex;gap:2rem;flex-wrap:wrap;animation:fadeUp .6s .32s ease both}
+.hp{display:flex;align-items:center;gap:.5rem;font-size:11px;color:var(--ink3);font-weight:500}
+.hp::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--teal);flex-shrink:0}
+
+/* SECTION STRUCTURE */
+.sec-rule{display:flex;align-items:center;gap:.875rem;padding:0 1.75rem;margin:0}
+.sr-n{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3)}
+.sr-line{flex:1;height:1px;background:var(--brd)}
+.sr-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3)}
+.lp-sec{padding:5rem 1.75rem}
+@media(max-width:620px){.lp-sec{padding:3.5rem 1.25rem}}
+.lp-wrap{max-width:700px;margin:0 auto}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:1.25rem}
+.sec-h2{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(30px,5vw,50px);
+  font-weight:300;line-height:1.12;letter-spacing:-.015em;color:var(--ink);margin-bottom:.875rem;
+}
+.sec-h2 em{font-style:italic}
+.sec-p{font-size:14px;color:var(--ink2);line-height:1.85;max-width:540px;margin-bottom:2.5rem}
+
+/* PAIN — NUMBERED LIST */
+.pain-list{border-top:1px solid var(--brd);margin-top:.5rem}
+.pain-item{display:flex;gap:1.5rem;padding:1.375rem 0;border-bottom:1px solid var(--brd)}
+.pi-n{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink3);min-width:22px;padding-top:1px}
+.pi-body{}
+.pi-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+.pi-desc{font-size:12px;color:var(--ink3);line-height:1.65}
+
+/* TRUTH */
+.truth-card{background:var(--dark);border-radius:var(--r3);padding:2.5rem;position:relative;overflow:hidden;margin-bottom:1rem}
+.truth-card::after{content:'';position:absolute;top:0;right:0;width:160px;height:160px;background:radial-gradient(circle at top right,rgba(11,143,114,.18),transparent)}
+.tc-label{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:1.25rem}
+.tc-quote{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,3.5vw,26px);font-style:italic;font-weight:300;color:#fff;line-height:1.6;margin-bottom:1rem}
+.tc-src{font-size:11px;color:rgba(255,255,255,.35);font-weight:500}
+
+/* MODULES */
+.mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.75rem}
+@media(max-width:540px){.mod-grid{grid-template-columns:1fr}}
+.mc{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);padding:1.5rem;cursor:default}
+.mc-n{font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--ink3);display:block;margin-bottom:.625rem}
+.mc-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:.375rem}
+.mc-desc{font-size:12px;color:var(--ink3);line-height:1.6}
+.mc-time{display:inline-block;margin-top:.75rem;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-brd);padding:3px 10px;border-radius:100px}
+
+/* PRICE */
+.price-card{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r3);padding:2.5rem;margin-bottom:1.5rem}
+.price-incl{list-style:none;margin-bottom:2rem;display:flex;flex-direction:column;gap:.625rem}
+.price-incl li{display:flex;align-items:center;gap:.625rem;font-size:13px;color:var(--ink2)}
+.price-incl li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.price-num{display:flex;align-items:flex-start;gap:.375rem;margin-bottom:.375rem;line-height:1}
+.price-cur{font-size:20px;font-weight:600;color:var(--ink);margin-top:8px}
+.price-val{font-family:'Cormorant Garamond',serif;font-size:72px;font-weight:300;color:var(--ink);letter-spacing:-.03em}
+.price-cents{font-size:24px;font-weight:400;color:var(--ink);margin-top:12px}
+.price-install{font-size:12px;color:var(--ink3);margin-bottom:2rem}
+.price-guar{display:flex;align-items:center;gap:.625rem;font-size:12px;color:var(--ink3);margin-top:1.25rem}
+.pg-icon{width:16px;height:16px;border:1.5px solid var(--teal);border-radius:50%;flex-shrink:0}
+
+/* FAQ */
+.faq-item{border-bottom:1px solid var(--brd)}
+.fq{padding:1.125rem 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:1rem;user-select:none}
+.fq-q{font-size:14px;font-weight:600;color:var(--ink)}
+.fq-ic{font-size:20px;color:var(--ink3);transition:transform .25s;font-weight:300;flex-shrink:0;line-height:1}
+.faq-item.open .fq-ic{transform:rotate(45deg)}
+.fa{max-height:0;overflow:hidden;transition:all .3s ease;font-size:13px;color:var(--ink3);line-height:1.75}
+.faq-item.open .fa{max-height:200px;padding-bottom:1.125rem}
+
+/* FOOTER */
+.lp-footer{border-top:1px solid var(--brd);padding:2.5rem 1.75rem;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1.5rem}
+.f-logo{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;letter-spacing:.05em;color:var(--ink2)}
+.f-legal{font-size:11px;color:var(--ink3);line-height:1.9}
+
+/* STICKY */
+.sticky{position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(247,246,242,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--brd);padding:1rem 1.75rem;padding-bottom:calc(1rem + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.sticky-l{}
+.sticky-price{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);line-height:1}
+.sticky-hint{font-size:10px;color:var(--ink3);margin-top:2px}
+.sticky-btn{background:var(--teal);color:#fff;border:none;border-radius:100px;padding:.75rem 1.75rem;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;flex-shrink:0;transition:all .15s}
+.sticky-btn:active{transform:scale(.97)}
+
+/* ─────────────────────────────────────
+   APP
+───────────────────────────────────── */
+#appView{display:none;position:fixed;inset:0;background:var(--a-bg)}
+
+/* LOGIN */
+#loginScreen{position:absolute;inset:0;z-index:2000;background:var(--a-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;padding-top:calc(var(--safe-top) + 2rem)}
+.login-hd{text-align:center;margin-bottom:2rem}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;letter-spacing:.08em;color:var(--ink);display:block;margin-bottom:.375rem}
+.login-tagline{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink3)}
+.l-card{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:20px;padding:2rem;width:100%;max-width:360px}
+.l-seg{display:flex;background:var(--a-bg);border:1px solid var(--a-brd);border-radius:10px;padding:3px;margin-bottom:1.75rem;gap:3px}
+.lsb{flex:1;background:transparent;border:none;border-radius:8px;padding:.6rem;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;color:var(--ink3);cursor:pointer;transition:all .2s}
+.lsb.on{background:#fff;color:var(--ink);box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.l-title{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+.l-sub{font-size:12px;color:var(--ink3);margin-bottom:1.5rem}
+.fg{margin-bottom:.875rem}
+.fl{display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:.4rem}
+.fi{width:100%;background:var(--a-bg);border:1px solid var(--a-brd);border-radius:10px;padding:.875rem 1rem;font-size:15px;color:var(--ink);font-family:'Syne',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.fi:focus{border-color:var(--teal);background:#fff}
+.fi::placeholder{color:var(--ink3)}
+.l-btn{width:100%;background:var(--teal);color:#fff;border:none;border-radius:12px;padding:1rem;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:.02em;-webkit-appearance:none;margin-top:.25rem}
+.l-btn:hover{background:var(--teal2)}
+.l-btn:active{transform:scale(.98)}
+.l-err{font-size:11px;color:#c03a2a;text-align:center;min-height:16px;margin-top:.625rem}
+.l-hint{font-size:10px;color:var(--ink3);text-align:center;margin-top:1.25rem}
+
+/* SHELL */
+#appShell{display:none;flex-direction:column;position:absolute;inset:0;overflow:hidden}
+#scrollArea{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:72px;background:var(--a-bg)}
+
+/* TAB BAR */
+#tabBar{flex-shrink:0;background:rgba(244,243,239,.97);border-top:1px solid var(--a-brd);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;padding-bottom:calc(5px + env(safe-area-inset-bottom,0px))}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;border:none;background:transparent;cursor:pointer;min-height:52px;gap:2px}
+.tab-ic{font-size:17px;transition:transform .15s}
+.tab-lb{font-size:8.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);transition:color .15s}
+.tab-dot{width:3px;height:3px;border-radius:50%;background:var(--teal);opacity:0;margin:0 auto;transition:opacity .15s}
+.tab.on .tab-lb{color:var(--teal)}
+.tab.on .tab-ic{transform:scale(1.12)}
+.tab.on .tab-dot{opacity:1}
+
+/* PAGES */
+.page{display:none;min-height:100%;animation:fadeUp .3s ease}
+.page.on{display:block}
+
+/* CHECK OVERLAY */
+#checkOverlay{position:fixed;inset:0;z-index:1500;background:rgba(244,243,239,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn .2s ease}
+.co-ring{width:96px;height:96px;border-radius:50%;border:1px solid var(--teal);display:flex;align-items:center;justify-content:center;animation:scaleIn .4s cubic-bezier(.175,.885,.32,1.275) both;margin-bottom:1.5rem}
+.co-sym{font-family:'Cormorant Garamond',serif;font-size:44px;font-style:italic;color:var(--teal);animation:floatY 2s ease infinite}
+.co-lbl{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:.375rem}
+.co-sub{font-size:12px;color:var(--ink3)}
+
+/* ── P0: HOME ── */
+.home-hero{background:var(--dark);padding:calc(var(--safe-top) + 1.5rem) 1.5rem 2rem;position:relative;overflow:hidden}
+.home-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(11,143,114,.15),transparent);pointer-events:none}
+.hh-greeting{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:.375rem}
+.hh-name{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,7vw,36px);font-weight:300;color:#fff;letter-spacing:-.01em;margin-bottom:1.75rem}
+.hh-pb-label{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.45);margin-bottom:.375rem}
+.hh-pb{height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-bottom:.375rem}
+.hh-pb-fill{height:100%;background:var(--teal);border-radius:2px;transition:width .8s ease}
+.hh-level{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:1.25rem 1.5rem}
+.hg-card{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);padding:1.25rem;cursor:pointer;transition:all .15s}
+.hg-card:active{transform:scale(.97)}
+.hg-icon{font-size:20px;margin-bottom:.75rem;display:block}
+.hg-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.hg-sub{font-size:11px;color:var(--ink3);line-height:1.5}
+.missions-wrap{padding:0 1.5rem 1.5rem}
+.missions-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem}
+.m-title{font-size:13px;font-weight:700;color:var(--ink)}
+.m-date{font-size:10px;color:var(--ink3)}
+.mission-list{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);overflow:hidden}
+.ms{display:flex;align-items:flex-start;gap:.75rem;padding:.875rem 1.25rem;border-bottom:1px solid var(--a-brd);cursor:pointer;transition:background .1s}
+.ms:last-child{border-bottom:none}
+.ms:active{background:var(--a-bg)}
+.ms-cb{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--a-brd2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .2s;font-size:10px;font-weight:700;color:#fff}
+.ms-cb.on{background:var(--teal);border-color:var(--teal)}
+.ms-label{flex:1;font-size:13px;color:var(--ink2);line-height:1.5}
+.ms-label.done{text-decoration:line-through;color:var(--ink3)}
+
+/* ── P1: DASHBOARD ── */
+.dash-header{padding:1.5rem 1.5rem .75rem;display:flex;align-items:baseline;justify-content:space-between}
+.dh-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;letter-spacing:-.01em;color:var(--ink)}
+.dh-sub{font-size:10px;color:var(--ink3);font-weight:500}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 1.5rem 1rem}
+.kpi{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);padding:1.25rem}
+.kpi-label{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:.5rem}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;line-height:1;margin-bottom:.25rem}
+.kpi-hint{font-size:10px;color:var(--ink3)}
+.chart-card{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);padding:1.25rem;margin:0 1.5rem 1rem}
+.cc-hd{margin-bottom:.875rem}
+.cc-title{font-size:12px;font-weight:700;color:var(--ink)}
+.cc-sub{font-size:10px;color:var(--ink3);margin-top:1px}
+.cw canvas{max-height:180px}
+.user-card{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);padding:1.25rem;margin:0 1.5rem 1.5rem;display:flex;align-items:center;gap:1rem}
+.uc-av{width:44px;height:44px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:#fff;flex-shrink:0}
+.uc-name{font-size:14px;font-weight:700;color:var(--ink)}
+.uc-id{font-size:10px;color:var(--ink3);margin-top:2px}
+.uc-join{font-size:10px;color:var(--ink3)}
+.logout-btn{background:none;border:1px solid var(--a-brd);border-radius:8px;padding:.4rem .875rem;font-size:10px;color:var(--ink3);cursor:pointer;font-family:'Syne',sans-serif;margin-left:auto;flex-shrink:0}
+
+/* ── P2: DIAGNÓSTICO ── */
+.diag-hero{background:var(--dark);padding:calc(var(--safe-top) + 1.5rem) 1.5rem 2rem;text-align:center;position:relative;overflow:hidden}
+.diag-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 110%,rgba(11,143,114,.18),transparent)}
+.dh-overline{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:.875rem;position:relative}
+.dh-title{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,7vw,36px);font-weight:300;font-style:italic;color:#fff;line-height:1.2;margin-bottom:.5rem;position:relative}
+.dh-sub{font-size:12px;color:rgba(255,255,255,.55);position:relative}
+
+.quiz-card{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);margin:1.25rem 1.5rem;overflow:hidden}
+.qz-progress{height:2px;background:var(--a-bg)}
+.qz-fill{height:100%;background:var(--teal);transition:width .35s ease}
+.qz-inner{padding:1.5rem}
+.qz-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.qz-dim{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--teal)}
+.qz-count{font-size:10px;color:var(--ink3)}
+.qz-q{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,4vw,22px);font-weight:400;line-height:1.4;color:var(--ink);margin-bottom:1.25rem}
+.qz-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:1.25rem}
+.qz-opt{background:var(--a-bg);border:1px solid var(--a-brd);border-radius:10px;padding:.875rem 1rem;font-size:13px;color:var(--ink2);cursor:pointer;text-align:left;-webkit-appearance:none;transition:all .15s;font-family:'Syne',sans-serif;display:flex;align-items:center;gap:.75rem;line-height:1.4}
+.qz-opt:active{transform:scale(.99)}
+.qz-opt.sel{background:var(--teal-bg);border-color:var(--teal);color:var(--teal)}
+.q-dot{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--a-brd2);flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.qz-opt.sel .q-dot{background:var(--teal);border-color:var(--teal)}
+.qz-opt.sel .q-dot::after{content:'';width:5px;height:5px;border-radius:50%;background:#fff}
+.qz-nav{display:flex;justify-content:space-between;align-items:center}
+.qz-btn{background:var(--teal);color:#fff;border:none;border-radius:100px;padding:.75rem 1.75rem;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;-webkit-appearance:none;transition:all .15s}
+.qz-btn:active{transform:scale(.97)}
+.qz-ghost{background:transparent;color:var(--ink3);border:1px solid var(--a-brd2);border-radius:100px;padding:.75rem 1.25rem;font-size:12px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;-webkit-appearance:none}
+
+.diag-result{display:none;padding:0 1.5rem 1.5rem}
+.profile-card{background:var(--dark);border-radius:var(--r);padding:2rem;text-align:center;margin-bottom:1rem;position:relative;overflow:hidden}
+.profile-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(11,143,114,.2),transparent)}
+.pc-overline{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:1rem;position:relative}
+.pc-name{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;font-style:italic;color:#fff;margin-bottom:.5rem;position:relative}
+.pc-desc{font-size:12px;color:rgba(255,255,255,.55);line-height:1.7;max-width:280px;margin:0 auto;position:relative}
+
+.radar-card{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);padding:1.5rem;margin-bottom:1rem}
+.rc-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.rc-sub{font-size:10px;color:var(--ink3);margin-bottom:1.25rem}
+.radar-wrap{max-height:260px;margin:0 auto;max-width:280px}
+.dim-bars{display:flex;flex-direction:column;gap:.625rem;margin-top:1.25rem}
+.db-row{display:flex;align-items:center;gap:.75rem}
+.db-label{font-size:11px;color:var(--ink2);font-weight:500;min-width:80px;flex-shrink:0}
+.db-track{flex:1;height:3px;background:var(--a-bg);border-radius:2px;overflow:hidden}
+.db-fill{height:100%;border-radius:2px;background:var(--teal);transition:width 1s ease}
+.db-val{font-size:10px;font-weight:700;color:var(--teal);min-width:28px;text-align:right}
+
+/* ── MÓDULOS ── */
+.mod-page-hero{background:var(--a-surface);border-bottom:1px solid var(--a-brd);padding:1.5rem}
+.mph-tag{display:inline-flex;align-items:center;gap:.375rem;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:.875rem}
+.mph-title{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,5.5vw,30px);font-weight:300;letter-spacing:-.01em;color:var(--ink);margin-bottom:.5rem;line-height:1.2}
+.mph-title em{font-style:italic}
+.mph-hook{font-size:12px;color:var(--ink3);line-height:1.75}
+
+.insight-card{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);padding:1.5rem;margin:1.25rem 1.5rem;position:relative}
+.insight-card::before{content:'';position:absolute;left:0;top:1.5rem;bottom:1.5rem;width:2px;background:var(--teal);border-radius:2px}
+.ic-src{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:.625rem}
+.ic-q{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,3.5vw,20px);font-style:italic;font-weight:300;color:var(--ink);line-height:1.6;margin-bottom:.5rem}
+.ic-ref{font-size:10px;color:var(--ink3)}
+
+.pg-div{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);padding:.5rem 1.5rem;margin:.25rem 0}
+
+.pattern-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 1.5rem;margin-bottom:1.25rem}
+@media(max-width:380px){.pattern-grid{grid-template-columns:1fr}}
+.pt-card{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r2);padding:.875rem}
+.pt-ic{font-size:18px;margin-bottom:.5rem;display:block}
+.pt-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.pt-desc{font-size:11px;color:var(--ink3);line-height:1.55}
+
+.proto-section{margin:0 1.5rem 1rem}
+.proto-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin-bottom:.75rem;display:flex;align-items:center;gap:.625rem}
+.proto-label::after{content:'';flex:1;height:1px;background:var(--a-brd)}
+.checklist{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);overflow:hidden}
+.cr{display:flex;align-items:flex-start;gap:.75rem;padding:.875rem 1.25rem;border-bottom:1px solid var(--a-brd);cursor:pointer;transition:background .1s}
+.cr:last-child{border-bottom:none}
+.cr:active{background:var(--a-bg)}
+.cb{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--a-brd2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .2s;font-size:10px;font-weight:700;color:#fff}
+.cb.on{background:var(--teal);border-color:var(--teal)}
+.ct{flex:1;font-size:12px;color:var(--ink2);line-height:1.55;transition:color .2s}
+.ct.done{text-decoration:line-through;color:var(--ink3)}
+.ctag{font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-brd);padding:2px 8px;border-radius:100px;flex-shrink:0;white-space:nowrap}
+
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 1.5rem 1.25rem}
+.st-card{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r2);padding:.875rem;text-align:center}
+.st-n{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;line-height:1;margin-bottom:2px}
+.st-l{font-size:10px;color:var(--ink3);line-height:1.4}
+
+.list-block{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);margin:0 1.5rem 1rem;overflow:hidden}
+.lb-hd{padding:.875rem 1.25rem;border-bottom:1px solid var(--a-brd);font-size:12px;font-weight:700;color:var(--ink)}
+.lb-row{display:flex;gap:.75rem;padding:.75rem 1.25rem;border-bottom:1px solid var(--a-brd);font-size:12px;color:var(--ink2);line-height:1.55}
+.lb-row:last-child{border-bottom:none}
+.lb-n{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--ink3);min-width:18px;flex-shrink:0;padding-top:1px}
+
+.stack-list{display:flex;flex-direction:column;gap:8px;padding:0 1.5rem;margin-bottom:1.25rem}
+.sl-card{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r2);padding:1rem}
+
+/* PNAV */
+.pnav{display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;border-top:1px solid var(--a-brd);margin-top:1.5rem}
+.pnb{background:transparent;border:1px solid var(--a-brd2);border-radius:8px;padding:.625rem 1rem;font-size:11px;font-weight:600;color:var(--ink3);cursor:pointer;font-family:'Syne',sans-serif;-webkit-appearance:none}
+.pnb.nx{background:var(--teal);color:#fff;border-color:var(--teal)}
+.pnb:active{transform:scale(.97)}
+.pni{font-size:10px;color:var(--ink3)}
+
+/* APP BUTTONS */
+.btn-app{display:flex;align-items:center;justify-content:center;background:var(--teal);color:#fff;border:none;border-radius:12px;padding:1rem 1.5rem;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;width:100%;transition:all .15s;-webkit-appearance:none;letter-spacing:.02em}
+.btn-app:hover{background:var(--teal2)}
+.btn-app:active{transform:scale(.98)}
+.btn-outline{display:flex;align-items:center;justify-content:center;background:transparent;color:var(--ink2);border:1px solid var(--a-brd2);border-radius:12px;padding:1rem;font-size:13px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;width:100%;transition:all .15s;-webkit-appearance:none}
+.btn-outline:active{transform:scale(.98)}
+
+/* ── P8: SCORE ── */
+.score-hero{background:var(--dark);padding:1.75rem 1.5rem 2rem;text-align:center;position:relative;overflow:hidden}
+.score-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 110%,rgba(11,143,114,.2),transparent)}
+.sh-score{font-family:'Cormorant Garamond',serif;font-size:96px;font-weight:300;color:#fff;line-height:.9;letter-spacing:-.04em;position:relative}
+.sh-label{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:.875rem;display:block;position:relative}
+.sh-tier{display:inline-block;padding:5px 16px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:.875rem;position:relative}
+.sh-msg{font-size:11px;color:rgba(255,255,255,.45);margin-top:.875rem;max-width:260px;margin-left:auto;margin-right:auto;position:relative}
+.score-bars{margin:1.25rem 1.5rem}
+.sb-row{margin-bottom:.875rem}
+.sb-hd{display:flex;justify-content:space-between;font-size:11px;margin-bottom:.375rem}
+.sb-name{color:var(--ink2);font-weight:500}
+.sb-val{color:var(--teal);font-weight:700}
+.sb-track{height:3px;background:var(--a-brd);border-radius:2px;overflow:hidden}
+.sb-fill{height:100%;border-radius:2px;transition:width .9s ease}
+.tier-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 1.5rem 1.25rem}
+.tc{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r2);padding:.875rem;text-align:center}
+.tc-n{font-size:8.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:3px}
+.tc-name{font-size:12px;font-weight:700;margin:2px 0}
+.tc-pts{font-size:10px;color:var(--ink3)}
+.ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 1.5rem 1.5rem}
+.ach{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r2);padding:1rem}
+.ach-ic{font-size:20px;margin-bottom:.5rem;display:block}
+.ach-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.ach-desc{font-size:10px;color:var(--ink3);line-height:1.5}
+.score-cta{background:var(--a-surface);border:1px solid var(--a-brd);border-radius:var(--r);padding:2rem 1.5rem;margin:0 1.5rem 1.5rem;text-align:center}
+.sc-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;font-style:italic;color:var(--ink);margin-bottom:.5rem}
+.sc-sub{font-size:12px;color:var(--ink3);line-height:1.7;margin-bottom:1.5rem;max-width:280px;margin-left:auto;margin-right:auto}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LANDING ══════════════ -->
+<div id="landingView">
+
+<nav class="topbar">
+  <div class="tb-brand">
+    <span class="tb-logo">VORTEX</span>
+    <span class="tb-proto">Protocol</span>
+  </div>
+  <button class="tb-cta" onclick="scrollToBuy()">Começar agora</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-ghost">PROTOCOL</div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <div class="he-line"></div>
+      <span class="he-text">Sistema de Reconstrução Pessoal — 90 dias</span>
+    </div>
+    <h1 class="hero-h1">
+      Seu cérebro nunca<br>
+      recebeu o sistema<br>
+      <em>certo.</em>
+    </h1>
+    <p class="hero-sub">
+      Procrastinação não é preguiça. TDAH funcional não é fraqueza. Baixa autoestima não é personalidade.<br><br>
+      São respostas de um sistema nervoso <strong>sem protocolo</strong>. O VORTEX muda isso.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="scrollToBuy()">Acessar o Protocol →</button>
+      <button class="btn-text" onclick="scrollToBuy()">Ver o que está incluído</button>
+    </div>
+    <div class="hero-proof">
+      <span class="hp">Neurociência comportamental</span>
+      <span class="hp">Protocolos validados</span>
+      <span class="hp">Por apenas R$30,00</span>
+    </div>
+  </div>
+</section>
+
+<div class="sec-rule"><span class="sr-n">001</span><div class="sr-line"></div><span class="sr-label">Reconhece isso?</span></div>
+
+<section class="lp-sec">
+<div class="lp-wrap">
+  <span class="sec-label">O problema real</span>
+  <h2 class="sec-h2">Não é falta de vontade.<br><em>É ausência de sistema.</em></h2>
+  <div class="pain-list">
+    <div class="pain-item"><span class="pi-n">i.</span><div class="pi-body"><div class="pi-title">Começa tudo. Termina nada.</div><div class="pi-desc">Alta criatividade, execução zero. Ciclo que se repete há anos — não é quem você é, é como seu sistema processa recompensa.</div></div></div>
+    <div class="pain-item"><span class="pi-n">ii.</span><div class="pi-body"><div class="pi-title">Foco que dura 4 minutos.</div><div class="pi-desc">Tela aberta, notificação, pensamento novo. Sua atenção foi treinada para o imediato — pode ser retreinada.</div></div></div>
+    <div class="pain-item"><span class="pi-n">iii.</span><div class="pi-body"><div class="pi-title">Autoestima que sobe e desce.</div><div class="pi-desc">Um dia você acredita em si. No outro, se questiona tudo. Isso não é fraqueza — é identidade sem âncora.</div></div></div>
+    <div class="pain-item"><span class="pi-n">iv.</span><div class="pi-body"><div class="pi-title">Rotinas que duram 3 dias.</div><div class="pi-desc">Você já tentou dezenas de sistemas. Todos funcionam por uma semana. O problema não é disciplina — é design do sistema.</div></div></div>
+    <div class="pain-item"><span class="pi-n">v.</span><div class="pi-body"><div class="pi-title">Sensação de estar ficando para trás.</div><div class="pi-desc">Você vê pessoas avançando e sente que algo fundamental está errado com você. Não está. Está faltando o protocolo.</div></div></div>
+    <div class="pain-item"><span class="pi-n">vi.</span><div class="pi-body"><div class="pi-title">Dopamina sequestrada pelo celular.</div><div class="pi-desc">Scroll vira fuga. Fuga vira padrão. O que deveria ser seu maior recurso — sua mente — trabalha contra você.</div></div></div>
+  </div>
+</div>
+</section>
+
+<div class="sec-rule"><span class="sr-n">002</span><div class="sr-line"></div><span class="sr-label">A ciência por trás</span></div>
+
+<div style="background:var(--dark);padding:2rem 1.75rem;display:flex;flex-wrap:wrap;gap:2rem;justify-content:center;text-align:center">
+  <div><div style="font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:#fff;line-height:1">60%</div><div style="font-size:10px;color:rgba(255,255,255,.4);max-width:110px;line-height:1.6;margin-top:.375rem">dos jovens com TDAH funcional sem diagnóstico</div></div>
+  <div><div style="font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:#fff;line-height:1">21d</div><div style="font-size:10px;color:rgba(255,255,255,.4);max-width:110px;line-height:1.6;margin-top:.375rem">para criar novo padrão neural (neuroplasticidade)</div></div>
+  <div><div style="font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:var(--teal);line-height:1">R$30</div><div style="font-size:10px;color:rgba(255,255,255,.4);max-width:110px;line-height:1.6;margin-top:.375rem">para ter o sistema que a maioria busca a vida toda</div></div>
+  <div><div style="font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:#fff;line-height:1">90d</div><div style="font-size:10px;color:rgba(255,255,255,.4);max-width:110px;line-height:1.6;margin-top:.375rem">de protocolo estruturado para mudança real e duradoura</div></div>
+</div>
+
+<section class="lp-sec">
+<div class="lp-wrap">
+  <span class="sec-label">Neurociência aplicada</span>
+  <h2 class="sec-h2"><em>A causa</em> é identificável.<br>E tratável.</h2>
+  <p class="sec-p">A pesquisa em neurociência comportamental é clara: procrastinação é um problema de regulação emocional, não de caráter. Com o ambiente e protocolo certos, o sistema muda.</p>
+  <div class="truth-card">
+    <span class="tc-label">Anna Lembke — Stanford, Dopamine Nation</span>
+    <p class="tc-quote">"O cérebro busca equilíbrio. Quanto mais alta a dopamina do prazer fácil, mais profundo o vale depois. Restaurar a linha de base muda tudo — motivação, foco, disciplina."</p>
+    <span class="tc-src">Stanford University · 2021</span>
+  </div>
+  <div class="truth-card" style="margin-top:.75rem">
+    <span class="tc-label">Pychyl & Flett — Psychological Science</span>
+    <p class="tc-quote">"A procrastinação não é falta de gestão do tempo. É antecipação de desconforto emocional. Reconhecer o padrão é o primeiro passo para quebrá-lo."</p>
+    <span class="tc-src">Journal of Attention Disorders · 2023</span>
+  </div>
+</div>
+</section>
+
+<div class="sec-rule"><span class="sr-n">003</span><div class="sr-line"></div><span class="sr-label">O sistema</span></div>
+
+<section class="lp-sec">
+<div class="lp-wrap">
+  <span class="sec-label">7 módulos progressivos</span>
+  <h2 class="sec-h2">Uma jornada de<br><em>reconstrução real.</em></h2>
+  <p class="sec-p">Cada módulo é construído sobre o anterior. Uma progressão lógica — de dentro para fora — da mente para o corpo, da identidade para a presença.</p>
+  <div class="mod-grid">
+    <div class="mc"><span class="mc-n">Módulo 01</span><div class="mc-title">Decodificação Mental</div><div class="mc-desc">Neurociência do TDAH funcional, ciclos dopaminérgicos e raízes da procrastinação.</div><span class="mc-time">Semana 1–2</span></div>
+    <div class="mc"><span class="mc-n">Módulo 02</span><div class="mc-title">Identidade Zero</div><div class="mc-desc">Desconstrução de crenças limitantes. Journaling estruturado. Reconstrução da autoimagem.</div><span class="mc-time">Semana 2–3</span></div>
+    <div class="mc"><span class="mc-n">Módulo 03</span><div class="mc-title">Sistema de Foco</div><div class="mc-desc">Protocolos anti-procrastinação para TDAH. Deep Work adaptado. Gestão de energia.</div><span class="mc-time">Semana 3–4</span></div>
+    <div class="mc"><span class="mc-n">Módulo 04</span><div class="mc-title">Controle Dopaminérgico</div><div class="mc-desc">Desintoxicação digital e reconstrução do circuito de motivação natural.</div><span class="mc-time">Semana 4–5</span></div>
+    <div class="mc"><span class="mc-n">Módulo 05</span><div class="mc-title">Rotina Viva</div><div class="mc-desc">Hábitos para mentes neurodivergentes. Flexibilidade estruturada. Protocolos AM/PM.</div><span class="mc-time">Semana 5–7</span></div>
+    <div class="mc"><span class="mc-n">Módulo 06</span><div class="mc-title">Corpo como Ferramenta</div><div class="mc-desc">Sono, movimento e alimentação como base da transformação mental.</div><span class="mc-time">Semana 7–9</span></div>
+    <div class="mc"><span class="mc-n">Módulo 07</span><div class="mc-title">Presença e Confiança</div><div class="mc-desc">Autoestima aplicada, linguagem corporal, comunicação e identidade pública.</div><span class="mc-time">Semana 9–12</span></div>
+    <div class="mc" style="background:var(--teal-bg);border-color:var(--teal-brd)"><span class="mc-n" style="color:var(--teal)">Dashboard</span><div class="mc-title">Score + Conquistas</div><div class="mc-desc">Gráficos em tempo real, diagnóstico de perfil e sistema de 5 níveis de evolução.</div><span class="mc-time" style="background:#fff">Exclusivo</span></div>
+  </div>
+</div>
+</section>
+
+<div class="sec-rule"><span class="sr-n">004</span><div class="sr-line"></div><span class="sr-label">Você não está só</span></div>
+
+<section class="lp-sec">
+<div class="lp-wrap">
+  <span class="sec-label">Eles também passaram por isso</span>
+  <h2 class="sec-h2">Algumas das maiores mentes<br><em>da história lutaram com isso.</em></h2>
+  <p class="sec-p">Procrastinação, foco fragmentado, identidade instável, baixa autoestima — não são fraquezas únicas suas. São padrões humanos que os maiores nomes do mundo também enfrentaram. E superaram.</p>
+
+  <div class="truth-card">
+    <span class="tc-label">Albert Einstein — Físico, Nobel de Física (1921)</span>
+    <p class="tc-quote">"A mente intuitiva é um presente sagrado e a mente racional é um servo fiel. Nós criamos uma sociedade que honra o servo e esqueceu o presente."</p>
+    <span class="tc-src">Einstein lutou com dificuldades de aprendizado na escola, foi reprovado em admissões e considerado "lento" por professores. Seu sistema de pensar diferente virou revolução.</span>
+  </div>
+
+  <div class="truth-card" style="margin-top:.875rem">
+    <span class="tc-label">Marcus Aurelius — Imperador e Filósofo Estoico</span>
+    <p class="tc-quote">"Você tem poder sobre sua mente, não sobre os eventos externos. Perceba isso e encontrará força."</p>
+    <span class="tc-src">Aurelius escrevia diariamente em seus "Pensamentos" — um journaling de autocontrole e disciplina — exatamente como o protocolo do VORTEX prescreve. Sua rotina era seu sistema.</span>
+  </div>
+
+  <div class="truth-card" style="margin-top:.875rem">
+    <span class="tc-label">Eminem — Rapper, produtor, artista</span>
+    <p class="tc-quote">"Eu não dormia. Trabalhava até desmaiar. Depois acordava e continuava. Não era talento — era sistema. Era não ter outra opção além de avançar."</p>
+    <span class="tc-src">Marshall Mathers cresceu em pobreza extrema, foi diagnosticado com TDAH, sofreu bullying severo e tentou suicídio. Ele criou um sistema de trabalho obsessivo quando tudo ao redor era caos.</span>
+  </div>
+
+  <div class="truth-card" style="margin-top:.875rem">
+    <span class="tc-label">Simone de Beauvoir — Filósofa, escritora e pensadora</span>
+    <p class="tc-quote">"Uma não nasce mulher — torna-se. E o mesmo vale para qualquer identidade: você não nasce com ela. Você a constrói, escolha a escolha."</p>
+    <span class="tc-src">De Beauvoir enfrentou rejeição familiar, pressão social e uma vida que tentou moldá-la. Ela construiu sua identidade por dentro para fora — recusando o que a sociedade definia como seu papel.</span>
+  </div>
+
+  <div class="truth-card" style="margin-top:.875rem">
+    <span class="tc-label">Lady Gaga — Cantora, atriz e ativista</span>
+    <p class="tc-quote">"Não fui aceita em lugar nenhum quando era jovem. Fui excluída, ridicularizada. E foi exatamente essa dor que me ensinou quem eu realmente era. A rejeição me forjou."</p>
+    <span class="tc-src">Stefani Germanotta foi expulsa de projetos, ignorada pela indústria e sofreu bullying severo. Diagnosticada com fibromialgia e TEPT, ela usou disciplina criativa e identidade construída como escudo e arma.</span>
+  </div>
+
+  <div class="truth-card" style="margin-top:.875rem">
+    <span class="tc-label">Sócrates — Filósofo da Grécia Antiga</span>
+    <p class="tc-quote">"Conhece-te a ti mesmo." — e depois: "Uma vida sem exame não vale a pena ser vivida."</p>
+    <span class="tc-src">Sócrates não deixou nada escrito. Seu método — questionar, desconstruir crenças, reconstruir com clareza — é exatamente o que o módulo de Identidade do VORTEX aplica em protocolos modernos.</span>
+  </div>
+
+  <div class="truth-card" style="margin-top:.875rem">
+    <span class="tc-label">Justin Bieber — Músico e criador de conteúdo</span>
+    <p class="tc-quote">"Eu cheguei ao ponto de não conseguir sair da cama. Ansiedade, depressão, falta de identidade. Fama sem estrutura interna te destrói. Tive que reconstruir tudo do zero."</p>
+    <span class="tc-src">Bieber falou abertamente sobre colapso emocional, uso de substâncias e falta de propósito após anos de sucesso. Sua reconstrução pública demonstra que disciplina e sistema interno são mais poderosos que qualquer talento externo.</span>
+  </div>
+
+  <div style="background:var(--teal-bg);border:1px solid var(--teal-brd);border-radius:var(--r);padding:1.5rem;margin-top:1.5rem;text-align:center">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(18px,4vw,24px);font-style:italic;color:var(--ink);line-height:1.5;margin-bottom:.75rem">"A diferença entre quem avança e quem fica parado não é talento. É sistema. É protocolo. É método."</div>
+    <div style="font-size:11px;color:var(--teal);font-weight:700;letter-spacing:.1em;text-transform:uppercase">A conclusão que a neurociência e a história confirmam</div>
+  </div>
+</div>
+</section>
+
+<div class="sec-rule"><span class="sr-n">005</span><div class="sr-line"></div><span class="sr-label">Investimento</span></div>
+
+<section class="lp-sec" id="comprarsec">
+<div class="lp-wrap">
+  <span class="sec-label">Acesso ao VORTEX Protocol</span>
+  <h2 class="sec-h2">Menos do que um<br><em>delivery. Para sempre.</em></h2>
+  <p class="sec-p" style="margin-bottom:1.5rem">R$30 é o preço de uma pizza. Mas o que você leva é um sistema de 90 dias que as maiores mentes do mundo tiveram que descobrir sozinhas. Você tem o atalho.</p>
+  <div class="price-card">
+    <ul class="price-incl">  <li>7 módulos completos de transformação pessoal</li>
+      <li>Quiz diagnóstico de perfil (12 perguntas)</li>
+      <li>Dashboard com gráficos e score em tempo real</li>
+      <li>Sistema de 5 níveis e 30+ conquistas desbloqueáveis</li>
+      <li>Journaling estruturado com prompts diários</li>
+      <li>Protocolos de foco adaptados para TDAH</li>
+      <li>Missões diárias e semanais gamificadas</li>
+    </ul>
+    <div class="price-num">
+      <span class="price-cur">R$</span>
+      <span class="price-val">30</span>
+      <span class="price-cents">,00</span>
+    </div>
+    <p class="price-install">pagamento único · acesso vitalício · por tempo limitado</p>
+    <button class="btn-primary" style="width:100%;justify-content:center;border-radius:12px;padding:1rem" onclick="startApp()">Acessar agora — R$30,00 →</button>
+    <div class="price-guar"><div class="pg-icon"></div>Garantia incondicional de 7 dias. Se não gostar, devolvemos 100%.</div>
+  </div>
+</div>
+</section>
+
+<div class="sec-rule"><span class="sr-n">006</span><div class="sr-line"></div><span class="sr-label">Dúvidas</span></div>
+
+<section class="lp-sec" style="padding-bottom:3rem">
+<div class="lp-wrap">
+  <span class="sec-label">Perguntas frequentes</span>
+  <div class="faq-item"><div class="fq" onclick="toggleFaq(this)"><span class="fq-q">Como acesso após a compra?</span><span class="fq-ic">+</span></div><div class="fa">Imediatamente após o pagamento você recebe o link por email. Abre direto no navegador, funciona em qualquer dispositivo — sem instalação. Pode adicionar à tela inicial do celular como app.</div></div>
+  <div class="faq-item"><div class="fq" onclick="toggleFaq(this)"><span class="fq-q">Funciona para quem tem TDAH diagnosticado?</span><span class="fq-ic">+</span></div><div class="fa">Sim. O VORTEX foi desenhado especificamente para mentes neurodivergentes. Os protocolos são adaptados para como esse tipo de cérebro processa recompensa e atenção — não tentamos te transformar em outra pessoa.</div></div>
+  <div class="faq-item"><div class="fq" onclick="toggleFaq(this)"><span class="fq-q">Quanto tempo por dia é necessário?</span><span class="fq-ic">+</span></div><div class="fa">O protocolo mínimo são 10–15 minutos por dia. Os módulos podem ser consumidos no seu ritmo. O sistema foi projetado para funcionar mesmo nos dias difíceis — sem exigir perfeição.</div></div>
+  <div class="faq-item"><div class="fq" onclick="toggleFaq(this)"><span class="fq-q">É diferente de outros cursos de produtividade?</span><span class="fq-ic">+</span></div><div class="fa">Completamente. Métodos convencionais ensinam técnicas para cérebros neurotípicos. O VORTEX parte da neurociência para construir sistemas que funcionam com você — não contra você. Não é mais um método de gestão do tempo.</div></div>
+  <div class="faq-item"><div class="fq" onclick="toggleFaq(this)"><span class="fq-q">Como funciona a garantia?</span><span class="fq-ic">+</span></div><div class="fa">7 dias completos de garantia incondicional. Se por qualquer motivo você não gostar, peça reembolso por email. Sem perguntas. 100% do valor de volta.</div></div>
+</div>
+</section>
+
+<footer class="lp-footer">
+  <div>
+    <div class="f-logo">VORTEX Protocol</div>
+  </div>
+  <div class="f-legal">
+    © 2025 VORTEX Protocol · Todos os direitos reservados<br>
+    Produto digital · Resultados variam conforme comprometimento
+  </div>
+</footer>
+
+<div class="sticky">
+  <div class="sticky-l">
+    <div class="sticky-price">R$30,00</div>
+    <div class="sticky-hint">pagamento único · acesso vitalício</div>
+  </div>
+  <button class="sticky-btn" onclick="startApp()">Começar agora →</button>
+</div>
+
+</div><!-- end landingView -->
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="appView">
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-hd">
+    <span class="login-logo">VORTEX</span>
+    <span class="login-tagline">Protocol · Sistema de Reconstrução Pessoal</span>
+  </div>
+  <div class="l-card">
+    <div class="l-seg">
+      <button class="lsb on" id="lt-in" onclick="swTab('in')">Entrar</button>
+      <button class="lsb" id="lt-reg" onclick="swTab('reg')">Criar conta</button>
+    </div>
+    <div id="fIn">
+      <div class="l-title">Bem-vindo de volta.</div>
+      <div class="l-sub">Continue sua jornada de reconstrução.</div>
+      <div class="fg"><label class="fl">E-mail</label><input class="fi" id="li-e" type="email" placeholder="seu@email.com" autocomplete="email"></div>
+      <div class="fg"><label class="fl">Senha</label><input class="fi" id="li-p" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="l-btn" onclick="doLogin()">Entrar →</button>
+    </div>
+    <div id="fReg" style="display:none">
+      <div class="l-title">Crie sua conta.</div>
+      <div class="l-sub">90 dias para reconstruir quem você é.</div>
+      <div class="fg"><label class="fl">Nome</label><input class="fi" id="ri-n" type="text" placeholder="Seu nome" autocomplete="name"></div>
+      <div class="fg"><label class="fl">E-mail</label><input class="fi" id="ri-e" type="email" placeholder="seu@email.com" autocomplete="email"></div>
+      <div class="fg"><label class="fl">Senha</label><input class="fi" id="ri-p" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+      <div class="fg"><label class="fl">Confirmar senha</label><input class="fi" id="ri-c" type="password" placeholder="Repita a senha" autocomplete="new-password"></div>
+      <button class="l-btn" onclick="doReg()">Criar conta →</button>
+    </div>
+    <div class="l-err" id="lerr"></div>
+  </div>
+  <div class="l-hint">Seus dados ficam apenas neste dispositivo</div>
+</div>
+
+<!-- CHECK OVERLAY -->
+<div id="checkOverlay" style="display:none">
+  <div class="co-ring"><div class="co-sym">✓</div></div>
+  <div class="co-lbl" id="chLbl">Concluído.</div>
+  <div class="co-sub" id="chSub">Avançando...</div>
+</div>
+
+<!-- SHELL -->
+<div id="appShell" style="display:none">
+<div id="scrollArea">
+
+<!-- P0: HOME -->
+<div id="p0" class="page on">
+  <div class="home-hero">
+    <div class="hh-greeting">Bem-vindo de volta</div>
+    <div class="hh-name" id="hName">Protocolo ativo.</div>
+    <div class="hh-pb-label">
+      <span id="hLevel" class="hh-level" style="color:rgba(255,255,255,.6)">Fragmentado</span>
+      <span id="hPct" style="font-size:10px;color:rgba(255,255,255,.45)">0%</span>
+    </div>
+    <div class="hh-pb"><div class="hh-pb-fill" id="hBar" style="width:0%"></div></div>
+    <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:.25rem">Progresso geral — <span id="hScore">0</span> / 1500 pts</div>
+  </div>
+  <div class="home-grid">
+    <div class="hg-card" onclick="go(2)"><span class="hg-icon">◈</span><div class="hg-title">Diagnóstico</div><div class="hg-sub">Seu perfil de evolução pessoal</div></div>
+    <div class="hg-card" onclick="go(3)"><span class="hg-icon">⬡</span><div class="hg-title">Módulos</div><div class="hg-sub">7 protocolos progressivos</div></div>
+    <div class="hg-card" onclick="go(1)"><span class="hg-icon">◻</span><div class="hg-title">Dashboard</div><div class="hg-sub">Gráficos e evolução</div></div>
+    <div class="hg-card" onclick="go(8)"><span class="hg-icon">◎</span><div class="hg-title">Score</div><div class="hg-sub">Níveis e conquistas</div></div>
+  </div>
+  <div class="missions-wrap">
+    <div class="missions-hd">
+      <span class="m-title">Missões de hoje</span>
+      <span class="m-date" id="mDate"></span>
+    </div>
+    <div class="mission-list">
+      <div class="ms" onclick="ckMission(this)"><div class="ms-cb" id="dm1"></div><div class="ms-label" id="dm1l">Protocolo matinal — 10 min sem celular ao acordar</div></div>
+      <div class="ms" onclick="ckMission(this)"><div class="ms-cb" id="dm2"></div><div class="ms-label" id="dm2l">Bloco de foco profundo — 25 minutos sem interrupção</div></div>
+      <div class="ms" onclick="ckMission(this)"><div class="ms-cb" id="dm3"></div><div class="ms-label" id="dm3l">Journaling noturno — 3 vitórias do dia (5 min)</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- P1: DASHBOARD -->
+<div id="p1" class="page">
+  <div class="dash-header">
+    <span class="dh-title">Dashboard</span>
+    <span class="dh-sub">Visão geral</span>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Score</div><div class="kpi-val" style="color:var(--teal)" id="dScore">0</div><div class="kpi-hint">de 1500 pontos</div></div>
+    <div class="kpi"><div class="kpi-label">Nível</div><div class="kpi-val" style="font-size:18px;margin-top:4px;color:#0f0f0c" id="dLevel">Fragmentado</div><div class="kpi-hint">5 níveis</div></div>
+    <div class="kpi"><div class="kpi-label">Concluídos</div><div class="kpi-val" style="color:var(--teal)" id="dDone">0</div><div class="kpi-hint">protocolos</div></div>
+    <div class="kpi"><div class="kpi-label">Dia</div><div class="kpi-val" style="color:var(--ink)" id="dDay">1</div><div class="kpi-hint">de 90</div></div>
+  </div>
+  <div class="chart-card"><div class="cc-hd"><div class="cc-title">Progresso por módulo</div><div class="cc-sub">% de conclusão</div></div><div class="cw"><canvas id="cPhase"></canvas></div></div>
+  <div class="chart-card"><div class="cc-hd"><div class="cc-title">Evolução semanal</div><div class="cc-sub">Score acumulado ao longo da jornada</div></div><div class="cw"><canvas id="cLine"></canvas></div></div>
+  <div class="chart-card"><div class="cc-hd"><div class="cc-title">Distribuição por área</div><div class="cc-sub">Foco de desenvolvimento</div></div><div class="cw"><canvas id="cPie"></canvas></div></div>
+  <div class="chart-card"><div class="cc-hd"><div class="cc-title">Você vs. média</div><div class="cc-sub">Performance comparativa</div></div><div class="cw"><canvas id="cRank"></canvas></div></div>
+  <div class="user-card">
+    <div class="uc-av" id="dAv">V</div>
+    <div>
+      <div class="uc-name" id="dNm">Usuário</div>
+      <div class="uc-id" id="dId">VTX-00000</div>
+      <div class="uc-join" id="dJoin">Membro desde hoje</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Sair</button>
+  </div>
+</div>
+
+<!-- P2: DIAGNÓSTICO -->
+<div id="p2" class="page">
+  <div class="diag-hero">
+    <span class="dh-overline">Avaliação de Perfil</span>
+    <div class="dh-title">Seu ponto de<br><em>partida real.</em></div>
+    <p class="dh-sub">6 dimensões · Análise visual completa</p>
+  </div>
+  <div class="quiz-card">
+    <div class="qz-progress"><div class="qz-fill" id="qzFill" style="width:0%"></div></div>
+    <div class="qz-inner">
+      <div id="qBody"></div>
+      <div class="qz-nav" id="qNav">
+        <button class="qz-ghost" id="qPrev" onclick="qMv(-1)" style="display:none">← Anterior</button>
+        <span style="font-size:10px;color:var(--ink3)" id="qCount">1 de 6</span>
+        <button class="qz-btn" id="qNext" onclick="qMv(1)">Próxima →</button>
+      </div>
+    </div>
+  </div>
+  <div class="diag-result" id="diagResult">
+    <div class="profile-card">
+      <span class="pc-overline">Perfil Identificado</span>
+      <div class="pc-name" id="pcName">—</div>
+      <p class="pc-desc" id="pcDesc">Complete o diagnóstico para ver seu perfil.</p>
+    </div>
+    <div class="radar-card">
+      <div class="rc-title">Mapa de Dimensões</div>
+      <div class="rc-sub">Análise visual das 6 áreas de desenvolvimento</div>
+      <div class="radar-wrap"><canvas id="radarChart"></canvas></div>
+      <div class="dim-bars" id="dimBars"></div>
+    </div>
+    <div style="padding:0 0 1.25rem">
+      <button class="btn-app" onclick="showCheck('Diagnóstico concluído.','Iniciando Módulo 1',function(){go(3)})">Começar o Protocolo →</button>
+    </div>
+  </div>
+</div>
+
+<!-- P3: MÓDULO 1 — DECODIFICAÇÃO MENTAL -->
+<div id="p3" class="page">
+  <div class="mod-page-hero">
+    <div class="mph-tag" style="background:rgba(192,58,42,.07);color:#b03020;border:1px solid rgba(192,58,42,.2)">🧠 Módulo 01 · 2 semanas</div>
+    <div class="mph-title">Você não é o problema.<br><em>O sistema é.</em></div>
+    <p class="mph-hook">"Até 60% dos jovens adultos com TDAH funcional nunca foram diagnosticados. Operam em modo crise permanente — reforçando os ciclos."</p>
+  </div>
+  <div class="insight-card">
+    <span class="ic-src">Journal of Attention Disorders, 2023</span>
+    <p class="ic-q">"O TDAH funcional não é déficit de inteligência — é um sistema de regulação emocional e recompensa que opera em frequência diferente. E isso pode ser trabalhado."</p>
+    <span class="ic-ref">Neurociência comportamental aplicada</span>
+  </div>
+  <div class="pg-div">5 padrões que bloqueiam o progresso</div>
+  <div class="pattern-grid">
+    <div class="pt-card"><span class="pt-ic">📱</span><div class="pt-title">Dopamina sequestrada</div><div class="pt-desc">Scroll dessensibiliza receptores. Tudo real parece sem graça.</div></div>
+    <div class="pt-card"><span class="pt-ic">🌀</span><div class="pt-title">Paralisia por análise</div><div class="pt-desc">Excesso de opções congela a ação. Perfeccionismo como fuga.</div></div>
+    <div class="pt-card"><span class="pt-ic">⏱</span><div class="pt-title">Cegueira temporal</div><div class="pt-desc">TDAH distorce percepção do tempo. Urgência só no limite.</div></div>
+    <div class="pt-card"><span class="pt-ic">💭</span><div class="pt-title">Voz crítica interna</div><div class="pt-desc">Autocrítica crônica como mecanismo de controle aprendido.</div></div>
+  </div>
+  <div class="proto-section">
+    <div class="proto-label">Protocolo de mapeamento — semana 1</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Anotar por 7 dias: qual tarefa evitei e que emoção senti antes</div><div class="ctag">Top 1</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Identificar os 3 maiores gatilhos de procrastinação pessoal</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Mapear horários de pico de energia vs. baixa no dia</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Registrar padrão de sono: horários de dormir e acordar</div></div>
+    </div>
+  </div>
+  <div class="proto-section">
+    <div class="proto-label">Protocolo de reset neural — semana 2</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Primeiros 30 min do dia sem celular e sem redes sociais</div><div class="ctag">Crítico</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">5 min de respiração diafragmática ao acordar — regula cortisol</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Reduzir uma fonte de hiperstimulação por semana</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Journaling de 5 min antes de dormir — descarregar o loop mental</div></div>
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="st-card"><div class="st-n" style="color:#b03020">60%</div><div class="st-l">adultos com TDAH funcional sem diagnóstico</div></div>
+    <div class="st-card"><div class="st-n" style="color:var(--teal)">21d</div><div class="st-l">para criar novo padrão neural</div></div>
+    <div class="st-card"><div class="st-n" style="color:var(--ink)">5min</div><div class="st-l">journaling mínimo de impacto real</div></div>
+  </div>
+  <div class="proto-section" style="margin-top:0">
+    <button class="btn-app" onclick="showCheck('Módulo 1 concluído.','Avançando para Identidade Zero',function(){go(4)})">Concluir Módulo 1 →</button>
+  </div>
+  <div class="pnav"><button class="pnb" onclick="go(2)">← Diagnóstico</button><span class="pni">01 / 07</span><button class="pnb nx" onclick="go(4)">Módulo 2 →</button></div>
+</div>
+
+<!-- P4: MÓDULO 2 — IDENTIDADE -->
+<div id="p4" class="page">
+  <div class="mod-page-hero">
+    <div class="mph-tag" style="background:rgba(180,140,30,.07);color:#9a7010;border:1px solid rgba(180,140,30,.2)">🪞 Módulo 02 · 2 semanas</div>
+    <div class="mph-title">Autoestima não é<br><em>sentimento. É construção.</em></div>
+    <p class="mph-hook">"A identidade que você acredita ter hoje foi criada por experiências passadas e reforçada pela narrativa interna. Pode ser reescrita."</p>
+  </div>
+  <div class="insight-card">
+    <span class="ic-src">Neff & Vonk — Self and Identity Journal</span>
+    <p class="ic-q">"Autoestima estável não vem de elogios externos — vem de pequenas vitórias acumuladas e consistência. O cérebro aprende que você é capaz quando você cumpre o que promete pra si."</p>
+    <span class="ic-ref">Psicologia da autocompaixão aplicada</span>
+  </div>
+  <div class="pg-div">Os 4 perfis de procrastinação</div>
+  <div class="stack-list">
+    <div class="sl-card" style="border-left:2px solid #b03020"><div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#b03020;margin-bottom:.375rem">O Paralisado</div><div style="font-size:12px;color:var(--ink2)">Sabe o que fazer mas não consegue começar. Paralisia por análise e medo de falhar.</div></div>
+    <div class="sl-card" style="border-left:2px solid #9a7010"><div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9a7010;margin-bottom:.375rem">O Caótico</div><div style="font-size:12px;color:var(--ink2)">Começa tudo, termina nada. Alta criatividade, baixa conclusão. Precisa de sistemas.</div></div>
+    <div class="sl-card" style="border-left:2px solid var(--teal)"><div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:.375rem">O Fantasma</div><div style="font-size:12px;color:var(--ink2)">Evita tudo como proteção. Invisibilidade como estratégia de fuga emocional.</div></div>
+    <div class="sl-card" style="border-left:2px solid #2a60a0"><div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#2a60a0;margin-bottom:.375rem">O Quase-lá</div><div style="font-size:12px;color:var(--ink2)">95% das coisas feitas, nunca entrega. Perfeccionismo como sabotador final.</div></div>
+  </div>
+  <div class="proto-section">
+    <div class="proto-label">Protocolo de journaling — 14 dias</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Escrever 3 evidências diárias de que você é capaz — por 14 dias consecutivos</div><div class="ctag">Top 1</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Identificar a crença limitante central ("não sou suficiente / inteligente / capaz")</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Escrever o reframe: o que sua versão futura diria sobre essa crença?</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Definir seus 3 valores centrais — o que é inegociável para você?</div></div>
+    </div>
+  </div>
+  <div class="proto-section">
+    <div class="proto-label">Construção de identidade ativa</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Escrever sua declaração: "Eu sou alguém que..." e revisitar diariamente</div><div class="ctag">Âncora</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Uma micro-ação alinhada à identidade desejada por dia (por menor que seja)</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Eliminar uma fonte de comparação negativa nas redes sociais</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Falar consigo mesmo como falaria com um amigo que você respeita</div></div>
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="st-card"><div class="st-n" style="color:#9a7010">14d</div><div class="st-l">para criar narrativa interna estável</div></div>
+    <div class="st-card"><div class="st-n" style="color:var(--teal)">3</div><div class="st-l">evidências/dia para reprogramar crenças</div></div>
+    <div class="st-card"><div class="st-n" style="color:var(--ink)">5min</div><div class="st-l">mínimo de alto impacto diário</div></div>
+  </div>
+  <div class="proto-section" style="margin-top:0">
+    <button class="btn-app" onclick="showCheck('Módulo 2 concluído.','Avançando para Sistema de Foco',function(){go(5)})">Concluir Módulo 2 →</button>
+  </div>
+  <div class="pnav"><button class="pnb" onclick="go(3)">← Módulo 1</button><span class="pni">02 / 07</span><button class="pnb nx" onclick="go(5)">Módulo 3 →</button></div>
+</div>
+
+<!-- P5: MÓDULO 3 — FOCO -->
+<div id="p5" class="page">
+  <div class="mod-page-hero">
+    <div class="mph-tag" style="background:rgba(11,143,114,.07);color:var(--teal);border:1px solid var(--teal-brd)">🎯 Módulo 03 · 2 semanas</div>
+    <div class="mph-title">Foco não é<br><em>força de vontade.</em></div>
+    <p class="mph-hook">"Mentes TDAH precisam de estrutura externa — não de mais esforço interno. O ambiente certo faz mais que qualquer motivação."</p>
+  </div>
+  <div class="insight-card">
+    <span class="ic-src">Barkley — ADHD Executive Function, 2021</span>
+    <p class="ic-q">"O sistema de atenção funciona por contraste e urgência. Criar ambientes com menos distrações e tarefas menores ativa o circuito de recompensa com mais eficiência para mentes TDAH."</p>
+    <span class="ic-ref">Neurociência da atenção aplicada</span>
+  </div>
+  <div class="pg-div">4 técnicas adaptadas para TDAH</div>
+  <div class="pattern-grid">
+    <div class="pt-card"><span class="pt-ic">⏱</span><div class="pt-title">Pomodoro TDAH</div><div class="pt-desc">15 min foco, 5 min pausa. Mais curto que o padrão. Mais eficiente.</div></div>
+    <div class="pt-card"><span class="pt-ic">✂️</span><div class="pt-title">Método 2 minutos</div><div class="pt-desc">Se leva menos de 2 min, faça agora. Elimina a fila mental.</div></div>
+    <div class="pt-card"><span class="pt-ic">🏠</span><div class="pt-title">Ambiente zero</div><div class="pt-desc">Celular fora do campo visual. Uma tarefa visível. Remoção de opções.</div></div>
+    <div class="pt-card"><span class="pt-ic">👥</span><div class="pt-title">Body doubling</div><div class="pt-desc">Trabalhar com presença de alguém (virtual inclui). Ativa foco naturalmente.</div></div>
+  </div>
+  <div class="proto-section">
+    <div class="proto-label">Protocolo diário de foco</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Definir UMA tarefa mais importante do dia — antes de abrir qualquer app</div><div class="ctag">Top 1</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Bloco de 25 min de foco sem interrupção — notificações desligadas</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Lista de "não farei hoje" — reduz a carga cognitiva de escolha</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Revisão semanal: o que funcionou? O que sabotou? Ajustar o sistema.</div></div>
+    </div>
+  </div>
+  <div class="proto-section">
+    <div class="proto-label">Decomposição de tarefas</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Quebrar qualquer tarefa grande em passos de no máximo 15 minutos</div><div class="ctag">Crítico</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Escrever sempre o próximo passo concreto — não o objetivo, o passo</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Recompensar completar passos (não só o projeto final)</div></div>
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="st-card"><div class="st-n" style="color:var(--teal)">25min</div><div class="st-l">bloco mínimo de foco eficaz</div></div>
+    <div class="st-card"><div class="st-n" style="color:var(--ink)">+40%</div><div class="st-l">produtividade com ambiente estruturado</div></div>
+    <div class="st-card"><div class="st-n" style="color:var(--teal)">1</div><div class="st-l">tarefa prioritária clara por dia</div></div>
+  </div>
+  <div class="proto-section" style="margin-top:0">
+    <button class="btn-app" onclick="showCheck('Módulo 3 concluído.','Avançando para Controle Dopaminérgico',function(){go(6)})">Concluir Módulo 3 →</button>
+  </div>
+  <div class="pnav"><button class="pnb" onclick="go(4)">← Módulo 2</button><span class="pni">03 / 07</span><button class="pnb nx" onclick="go(6)">Módulo 4 →</button></div>
+</div>
+
+<!-- P6: MÓDULO 4 — DOPAMINA -->
+<div id="p6" class="page">
+  <div class="mod-page-hero">
+    <div class="mph-tag" style="background:rgba(42,96,160,.07);color:#2a60a0;border:1px solid rgba(42,96,160,.2)">⚡ Módulo 04 · 2 semanas</div>
+    <div class="mph-title">Você não é viciado.<br><em>Você está dessensibilizado.</em></div>
+    <p class="mph-hook">"A hiperstimulação digital não cria dependência de conteúdo — cria intolerância ao tédio. E o tédio é onde a motivação real nasce."</p>
+  </div>
+  <div class="insight-card">
+    <span class="ic-src">Anna Lembke — Stanford, 2021</span>
+    <p class="ic-q">"O cérebro busca equilíbrio. Quanto mais alta a dopamina do prazer fácil, mais profundo o vale depois. Restaurar a linha de base muda tudo."</p>
+    <span class="ic-ref">Dopamine Nation — Stanford University</span>
+  </div>
+  <div class="proto-section" style="margin-top:1.25rem">
+    <div class="proto-label">Semana 1 — Redução gradual</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Redes sociais: limite de 60 min/dia (usar timer nativo do celular)</div><div class="ctag">Top 1</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Remover apps de entretenimento da tela inicial</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Sem celular 1h antes de dormir — substituir por leitura ou escrita</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Refeições sem tela — criar espaços de tédio intencional</div></div>
+    </div>
+  </div>
+  <div class="proto-section">
+    <div class="proto-label">Semana 2 — Recargas naturais</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">20 min de caminhada sem fone — restaura dopamina natural</div><div class="ctag">Grátis</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Atividade criativa sem tela (escrita, arte, música) 15 min/dia</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Recompensar esforço real — não resultado perfeito</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Criar "recompensa programada" ao completar blocos de foco</div></div>
+    </div>
+  </div>
+  <div class="list-block">
+    <div class="lb-hd">O que substitui a dopamina barata</div>
+    <div class="lb-row"><span class="lb-n">i.</span><div>Exercício físico — dopamina durável vs. dopamina do scroll</div></div>
+    <div class="lb-row"><span class="lb-n">ii.</span><div>Conexão social real — ativa ocitocina e dopamina simultaneamente</div></div>
+    <div class="lb-row"><span class="lb-n">iii.</span><div>Criação (escrever, construir, produzir) — recompensa intrínseca duradoura</div></div>
+    <div class="lb-row"><span class="lb-n">iv.</span><div>Aprendizado desafiador — dopamina de conquista real, não de like</div></div>
+  </div>
+  <div class="stat-row">
+    <div class="st-card"><div class="st-n" style="color:#2a60a0">7d</div><div class="st-l">para sentir diferença no nível de energia</div></div>
+    <div class="st-card"><div class="st-n" style="color:var(--teal)">+200%</div><div class="st-l">dopamina do exercício vs. scroll</div></div>
+    <div class="st-card"><div class="st-n" style="color:var(--ink)">14d</div><div class="st-l">reset dopaminérgico completo</div></div>
+  </div>
+  <div class="proto-section" style="margin-top:0">
+    <button class="btn-app" onclick="showCheck('Módulo 4 concluído.','Avançando para os módulos finais',function(){go(7)})">Concluir Módulo 4 →</button>
+  </div>
+  <div class="pnav"><button class="pnb" onclick="go(5)">← Módulo 3</button><span class="pni">04 / 07</span><button class="pnb nx" onclick="go(7)">Módulos 5–7 →</button></div>
+</div>
+
+<!-- P7: MÓDULOS 5-7 -->
+<div id="p7" class="page">
+  <div class="mod-page-hero">
+    <div class="mph-tag" style="background:rgba(11,143,114,.07);color:var(--teal);border:1px solid var(--teal-brd)">📅 Módulos 05, 06 e 07 · Fase final</div>
+    <div class="mph-title">Integrar o que foi<br><em>construído.</em></div>
+    <p class="mph-hook">"Os módulos finais transformam os protocolos em estilo de vida. Não é mais força de vontade — é identidade em ação."</p>
+  </div>
+  <div class="pg-div">Módulo 5 — Rotina Viva (semana 5–7)</div>
+  <div class="proto-section">
+    <div class="proto-label">Morning Protocol — 15 minutos</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Acordar no mesmo horário (±30 min) — âncora circadiana fundamental</div><div class="ctag">Top 1</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Hidratação + sol nos primeiros 10 min — cortisol saudável no início do dia</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Revisar a UMA meta do dia antes de abrir qualquer aplicativo</div></div>
+    </div>
+  </div>
+  <div class="proto-section">
+    <div class="proto-label">Night Protocol — 10 minutos</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Journaling: 3 vitórias do dia — por menores que pareçam</div><div class="ctag">Âncora</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Preparar o ambiente para o dia seguinte (roupa, tarefa principal, espaço)</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Tela desligada 45 min antes de dormir — sono reparador sustenta tudo</div></div>
+    </div>
+  </div>
+  <div class="pg-div">Módulo 6 — Corpo como Ferramenta (semana 7–9)</div>
+  <div class="proto-section">
+    <div class="proto-label">Base física</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">3× por semana de movimento intencional — treino, caminhada longa</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Proteína em todas as refeições — base da síntese neurológica e hormonal</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">7–9h de sono com horário consistente — a superpotência gratuita</div></div>
+    </div>
+  </div>
+  <div class="pg-div">Módulo 7 — Presença e Confiança (semana 9–12)</div>
+  <div class="list-block">
+    <div class="lb-hd">Confiança construída por comportamento</div>
+    <div class="lb-row"><span class="lb-n">i.</span><div>Postura ereta como padrão — ombros abertos, cabeça nivelada. Treino diário consciente.</div></div>
+    <div class="lb-row"><span class="lb-n">ii.</span><div>Falar com intenção — menos palavras, mais pausas. Presença é velocidade.</div></div>
+    <div class="lb-row"><span class="lb-n">iii.</span><div>Dizer não com clareza. Limites protegem energia e constroem respeito genuíno.</div></div>
+    <div class="lb-row"><span class="lb-n">iv.</span><div>Compartilhar progresso publicamente — accountability acelera transformação.</div></div>
+  </div>
+  <div class="proto-section">
+    <div class="proto-label">Exercícios de autoestima aplicada</div>
+    <div class="checklist">
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Completar a declaração de identidade e revisitar todo domingo</div><div class="ctag">Identidade</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Uma interação social intencional por dia — presente e ativa</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Registrar progresso visível: journaling, score no dashboard, antes/depois</div></div>
+      <div class="cr" onclick="ck(this)"><div class="cb"></div><div class="ct">Celebrar cada marco — seu cérebro precisa de prova do progresso</div></div>
+    </div>
+  </div>
+  <div class="proto-section" style="margin-top:0">
+    <button class="btn-app" onclick="showCheck('Sistema VORTEX completo.','90 dias. Você é diferente agora.',function(){go(8)})">Concluído — Ver Score final →</button>
+  </div>
+  <div class="pnav"><button class="pnb" onclick="go(6)">← Módulo 4</button><span class="pni">05–07 / 07</span><button class="pnb nx" onclick="go(8)">Score →</button></div>
+</div>
+
+<!-- P8: SCORE -->
+<div id="p8" class="page">
+  <div class="score-hero">
+    <div class="sh-score" id="fscore">0</div>
+    <span class="sh-label">VORTEX Score</span>
+    <div class="sh-tier" id="ftier" style="background:rgba(11,143,114,.15);color:var(--teal)">FRAGMENTADO</div>
+    <p class="sh-msg" id="fmsg">Complete os módulos para evoluir de nível.</p>
+  </div>
+  <div class="score-bars">
+    <div class="sb-row"><div class="sb-hd"><span class="sb-name">🧠 Decodificação</span><span class="sb-val" id="sv1">0/300</span></div><div class="sb-track"><div class="sb-fill" id="sb1" style="width:0%;background:#b03020"></div></div></div>
+    <div class="sb-row"><div class="sb-hd"><span class="sb-name">🪞 Identidade</span><span class="sb-val" id="sv2">0/300</span></div><div class="sb-track"><div class="sb-fill" id="sb2" style="width:0%;background:#9a7010"></div></div></div>
+    <div class="sb-row"><div class="sb-hd"><span class="sb-name">🎯 Foco</span><span class="sb-val" id="sv3">0/300</span></div><div class="sb-track"><div class="sb-fill" id="sb3" style="width:0%;background:var(--teal)"></div></div></div>
+    <div class="sb-row"><div class="sb-hd"><span class="sb-name">⚡ Dopamina</span><span class="sb-val" id="sv4">0/300</span></div><div class="sb-track"><div class="sb-fill" id="sb4" style="width:0%;background:#2a60a0"></div></div></div>
+    <div class="sb-row"><div class="sb-hd"><span class="sb-name">📅 Rotina · Corpo · Presença</span><span class="sb-val" id="sv5">0/300</span></div><div class="sb-track"><div class="sb-fill" id="sb5" style="width:0%;background:var(--teal)"></div></div></div>
+  </div>
+  <div style="padding:0 1.5rem"><div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);margin-bottom:.875rem">Níveis de evolução</div></div>
+  <div class="tier-grid">
+    <div class="tc"><div class="tc-n" style="color:var(--ink3)">Nível 1</div><div class="tc-name" style="color:var(--ink2)">Fragmentado</div><div class="tc-pts">0 – 299</div></div>
+    <div class="tc" style="border-color:rgba(176,48,32,.25)"><div class="tc-n" style="color:#b03020">Nível 2</div><div class="tc-name" style="color:#b03020">Ativado</div><div class="tc-pts">300 – 699</div></div>
+    <div class="tc" style="border-color:var(--teal-brd)"><div class="tc-n" style="color:var(--teal)">Nível 3</div><div class="tc-name" style="color:var(--teal)">Alinhado</div><div class="tc-pts">700 – 1099</div></div>
+    <div class="tc" style="border-color:rgba(42,96,160,.25)"><div class="tc-n" style="color:#2a60a0">Nível 4</div><div class="tc-name" style="color:#2a60a0">Focado</div><div class="tc-pts">1100 – 1399</div></div>
+    <div class="tc" style="border-color:rgba(154,112,16,.3);background:rgba(154,112,16,.03);grid-column:span 2"><div class="tc-n" style="color:#9a7010">Nível Máximo</div><div class="tc-name" style="color:#9a7010">Protocol</div><div class="tc-pts">1400 – 1500</div></div>
+  </div>
+  <div style="padding:0 1.5rem"><div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);margin-bottom:.875rem">Conquistas</div></div>
+  <div class="ach-grid">
+    <div class="ach"><span class="ach-ic">🔥</span><div class="ach-title">Primeiro Streak</div><div class="ach-desc">7 dias consecutivos com check-ins</div></div>
+    <div class="ach"><span class="ach-ic">🧠</span><div class="ach-title">Mente Decodificada</div><div class="ach-desc">Módulo 1 completo</div></div>
+    <div class="ach"><span class="ach-ic">🪞</span><div class="ach-title">Identidade Nova</div><div class="ach-desc">14 dias de journaling</div></div>
+    <div class="ach"><span class="ach-ic">⚡</span><div class="ach-title">Reset Dopaminérgico</div><div class="ach-desc">7 dias sem scroll excessivo</div></div>
+    <div class="ach"><span class="ach-ic">🎯</span><div class="ach-title">30 Dias de Foco</div><div class="ach-desc">Um mês de protocolos ativos</div></div>
+    <div class="ach"><span class="ach-ic">◎</span><div class="ach-title">Protocol</div><div class="ach-desc">Nível máximo — 90 dias</div></div>
+  </div>
+  <div class="score-cta">
+    <div class="sc-title">Você chegou até aqui.</div>
+    <p class="sc-sub">Isso já te separa de 95% das pessoas que começaram e desistiram. Você não é o problema. Você tinha um sistema errado.</p>
+    <button class="btn-app" onclick="go(0)">← Voltar ao início</button>
+  </div>
+</div>
+
+</div><!-- scrollArea -->
+
+<div id="tabBar">
+  <button class="tab on" onclick="go(0)"><div class="tab-ic">⌂</div><div class="tab-lb">Início</div><div class="tab-dot"></div></button>
+  <button class="tab" onclick="go(1)"><div class="tab-ic">◻</div><div class="tab-lb">Dados</div><div class="tab-dot"></div></button>
+  <button class="tab" onclick="go(2)"><div class="tab-ic">◈</div><div class="tab-lb">Diagnóstico</div><div class="tab-dot"></div></button>
+  <button class="tab" onclick="go(3)" id="modTab"><div class="tab-ic">⬡</div><div class="tab-lb">Módulos</div><div class="tab-dot"></div></button>
+  <button class="tab" onclick="go(8)"><div class="tab-ic">◎</div><div class="tab-lb">Score</div><div class="tab-dot"></div></button>
+</div>
+</div><!-- appShell -->
+</div><!-- appView -->
+
+<script>
+// ── LANDING ──
+function startApp(){
+  document.getElementById('landingView').style.display='none';
+  var av=document.getElementById('appView');
+  av.style.display='flex';av.style.flexDirection='column';
+  var s=ls('vtxS2');
+  if(s){var db=getDB();if(db[s]){doAutoLogin(s,db[s]);return;}}
+}
+function scrollToBuy(){document.getElementById('comprarsec').scrollIntoView({behavior:'smooth'})}
+function toggleFaq(el){
+  var item=el.parentElement;
+  var open=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(function(i){i.classList.remove('open')});
+  if(!open)item.classList.add('open');
+}
+
+// ── STORAGE ──
+function ls(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsS(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function getDB(){try{return JSON.parse(ls('vtxDB2')||'{}')}catch(e){return{}}}
+function saveDB(d){lsS('vtxDB2',JSON.stringify(d))}
+
+// ── AUTH ──
+var CU=null;
+function swTab(t){
+  document.getElementById('lt-in').classList.toggle('on',t==='in');
+  document.getElementById('lt-reg').classList.toggle('on',t==='reg');
+  document.getElementById('fIn').style.display=t==='in'?'block':'none';
+  document.getElementById('fReg').style.display=t==='reg'?'block':'none';
+  document.getElementById('lerr').textContent='';
+}
+function genId(){return 'VTX-'+Math.floor(10000+Math.random()*89999)}
+function doLogin(){
+  var e=document.getElementById('li-e').value.trim().toLowerCase();
+  var p=document.getElementById('li-p').value;
+  var err=document.getElementById('lerr');
+  if(!e||!p){err.textContent='Preencha e-mail e senha.';return}
+  var db=getDB();
+  if(!db[e]){err.textContent='E-mail não encontrado. Crie uma conta.';return}
+  if(db[e].pass!==p){err.textContent='Senha incorreta.';return}
+  doAutoLogin(e,db[e]);
+}
+function doAutoLogin(e,user){
+  CU={email:e,name:user.name,id:user.id,join:user.join};
+  lsS('vtxS2',e);
+  showApp();
+}
+function doReg(){
+  var n=document.getElementById('ri-n').value.trim();
+  var e=document.getElementById('ri-e').value.trim().toLowerCase();
+  var p=document.getElementById('ri-p').value;
+  var c=document.getElementById('ri-c').value;
+  var err=document.getElementById('lerr');
+  if(!n||!e||!p||!c){err.textContent='Preencha todos os campos.';return}
+  if(!e.includes('@')){err.textContent='E-mail inválido.';return}
+  if(p.length<6){err.textContent='Senha mínima: 6 caracteres.';return}
+  if(p!==c){err.textContent='As senhas não coincidem.';return}
+  var db=getDB();
+  if(db[e]){err.textContent='E-mail já cadastrado.';return}
+  var id=genId();
+  var now=new Date().toLocaleDateString('pt-BR');
+  db[e]={name:n,email:e,pass:p,id:id,join:now};
+  saveDB(db);
+  CU={email:e,name:n,id:id,join:now};
+  lsS('vtxS2',e);
+  showApp();
+}
+function showApp(){
+  document.getElementById('loginScreen').style.display='none';
+  var sh=document.getElementById('appShell');
+  sh.style.display='flex';sh.style.flexDirection='column';sh.style.position='absolute';sh.style.inset='0';
+  var fn=CU.name.split(' ')[0];
+  var hn=document.getElementById('hName');if(hn)hn.textContent='Olá, '+fn+'.';
+  var dav=document.getElementById('dAv');if(dav)dav.textContent=CU.name[0].toUpperCase();
+  var dnm=document.getElementById('dNm');if(dnm)dnm.textContent=CU.name;
+  var did=document.getElementById('dId');if(did)did.textContent=CU.id;
+  var djn=document.getElementById('dJoin');if(djn)djn.textContent='Membro desde '+CU.join;
+  var md=document.getElementById('mDate');if(md)md.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
+  restoreChecks();restoreMissions();updateScore();go(0);
+}
+function doLogout(){
+  lsS('vtxS2','');CU=null;
+  document.getElementById('appView').style.display='none';
+  document.getElementById('landingView').style.display='block';
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+}
+
+// ── NAVIGATION ──
+var PGS=['p0','p1','p2','p3','p4','p5','p6','p7','p8'];
+var tabMap=[0,1,2,3,3,3,3,3,4];
+function go(n){
+  PGS.forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('on')});
+  var p=document.getElementById(PGS[n]);if(p)p.classList.add('on');
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('on',i===tabMap[n])});
+  var mt=document.getElementById('modTab');
+  if(mt&&n>=3&&n<=7){var icons=['🧠','🪞','🎯','⚡','📅'];mt.querySelector('.tab-ic').textContent=icons[n-3]||'⬡';}
+  var sa=document.getElementById('scrollArea');if(sa)sa.scrollTo({top:0,behavior:'smooth'});
+  if(n===1)updDash();
+  if(n===8)updateScore();
+}
+
+// ── CHECK OVERLAY ──
+function showCheck(lbl,sub,cb){
+  var o=document.getElementById('checkOverlay');
+  document.getElementById('chLbl').textContent=lbl;
+  document.getElementById('chSub').textContent=sub;
+  o.style.display='flex';o.style.flexDirection='column';o.style.alignItems='center';o.style.justifyContent='center';
+  setTimeout(function(){o.style.display='none';if(cb)cb();},2100);
+}
+
+// ── CHECKLISTS (modules) ──
+function ck(row){
+  var cb=row.querySelector('.cb'),ct=row.querySelector('.ct');
+  var on=cb.classList.toggle('on');
+  cb.textContent=on?'✓':'';ct.classList.toggle('done',on);
+  if(CU){saveCheck(getKey(row),on);}
+  updateScore();
+  if(document.getElementById('p1').classList.contains('on'))refCharts();
+}
+function getKey(row){var ct=row.querySelector('.ct');return ct?ct.textContent.trim().slice(0,44):'r'}
+function saveCheck(key,on){
+  var db=getDB(),u=db[CU.email];
+  if(!u)return;if(!u.ch)u.ch={};
+  if(on)u.ch[key]=1;else delete u.ch[key];
+  saveDB(db);
+}
+function restoreChecks(){
+  if(!CU)return;
+  var db=getDB(),u=db[CU.email];if(!u||!u.ch)return;
+  document.querySelectorAll('.cr').forEach(function(row){
+    var k=getKey(row);
+    if(u.ch[k]){var cb=row.querySelector('.cb'),ct=row.querySelector('.ct');if(cb){cb.classList.add('on');cb.textContent='✓';}if(ct)ct.classList.add('done');}
+  });
+}
+
+// ── DAILY MISSIONS ──
+function ckMission(ms){
+  var cb=ms.querySelector('.ms-cb'),lb=ms.querySelector('.ms-label');
+  var on=cb.classList.toggle('on');
+  cb.textContent=on?'✓':'';lb.classList.toggle('done',on);
+}
+function restoreMissions(){}
+
+// ── SCORING ──
+var PP=['p3','p4','p5','p6','p7'];
+function cntP(pid){var p=document.getElementById(pid);if(!p)return{c:0,m:0};return{c:p.querySelectorAll('.cb.on').length,m:p.querySelectorAll('.cb').length};}
+function updateScore(){
+  var ids=['sb1','sb2','sb3','sb4','sb5'],vids=['sv1','sv2','sv3','sv4','sv5'],tot=0;
+  PP.forEach(function(pid,i){
+    var r=cntP(pid),pts=r.m>0?Math.round(r.c/r.m*300):0;tot+=pts;
+    var sb=document.getElementById(ids[i]);if(sb)sb.style.width=Math.round(r.c/(r.m||1)*100)+'%';
+    var sv=document.getElementById(vids[i]);if(sv)sv.textContent=pts+'/300';
+  });
+  var fs=document.getElementById('fscore');if(fs)fs.textContent=tot;
+  var nivel='FRAGMENTADO',tc='rgba(11,143,114,.12)',tcc='var(--teal)',msg='Complete os módulos para evoluir.';
+  if(tot>=1400){nivel='PROTOCOL';tc='rgba(154,112,16,.15)';tcc='#9a7010';msg='Nível máximo. 90 dias. Você reconstruiu quem é.';}
+  else if(tot>=1100){nivel='FOCADO';tc='rgba(42,96,160,.12)';tcc='#2a60a0';msg='Nível Focado. Protocol está próximo.';}
+  else if(tot>=700){nivel='ALINHADO';tc='rgba(11,143,114,.12)';tcc='var(--teal)';msg='Em alinhamento. O sistema está funcionando.';}
+  else if(tot>=300){nivel='ATIVADO';tc='rgba(176,48,32,.1)';tcc='#b03020';msg='Ativado. Os primeiros resultados já aparecem.';}
+  var ft=document.getElementById('ftier');if(ft){ft.textContent=nivel;ft.style.background=tc;ft.style.color=tcc;}
+  var fm=document.getElementById('fmsg');if(fm)fm.textContent=msg;
+  var ds=document.getElementById('dScore');if(ds)ds.textContent=tot;
+  var dlv=document.getElementById('dLevel');if(dlv)dlv.textContent=nivel[0]+nivel.slice(1).toLowerCase();
+  var hs=document.getElementById('hScore');if(hs)hs.textContent=tot;
+  var hl=document.getElementById('hLevel');if(hl){hl.textContent=nivel;hl.style.color=tcc;}
+  var hb=document.getElementById('hBar');if(hb)hb.style.width=Math.round(tot/15)+'%';
+  var hp=document.getElementById('hPct');if(hp)hp.textContent=Math.round(tot/15)+'%';
+  var dc=document.getElementById('dDone');if(dc){var tc2=0;PP.forEach(function(pid){tc2+=cntP(pid).c});dc.textContent=tc2;}
+}
+
+// ── CHARTS ──
+var CI={},cinit=false;
+function updDash(){updateScore();if(!cinit){initCharts();cinit=true;}else refCharts();}
+function getPhPct(){return PP.map(function(pid){var r=cntP(pid);return r.m>0?Math.round(r.c/r.m*100):0});}
+function getCurScore(){var t=0;PP.forEach(function(pid){var r=cntP(pid);t+=r.m>0?Math.round(r.c/r.m*300):0;});return t;}
+function initCharts(){
+  Chart.defaults.color='rgba(74,73,64,0.7)';
+  Chart.defaults.borderColor='rgba(0,0,0,0.06)';
+  Chart.defaults.font.family="'Syne',system-ui,sans-serif";
+  Chart.defaults.font.size=11;
+  var ph=getPhPct();
+  var tealClrs=['rgba(11,143,114,.65)','rgba(154,112,16,.65)','rgba(176,48,32,.65)','rgba(42,96,160,.65)','rgba(11,143,114,.45)'];
+  var tealBdrs=['#0b8f72','#9a7010','#b03020','#2a60a0','#0b8f72'];
+  var cP=document.getElementById('cPhase');
+  if(cP)CI.ph=new Chart(cP,{type:'bar',data:{labels:['Decode','Identid.','Foco','Dopam.','Rotina+'],datasets:[{data:ph,backgroundColor:tealClrs,borderColor:tealBdrs,borderWidth:1,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:true,animation:{duration:600},plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{min:0,max:100,grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:function(v){return v+'%'},font:{size:10}}}}}});
+  var cL=document.getElementById('cLine');
+  if(cL)CI.ln=new Chart(cL,{type:'line',data:{labels:['S1','S2','S3','S4','S5','S6','Agora'],datasets:[{data:[0,40,110,200,310,440,getCurScore()],borderColor:'#0b8f72',backgroundColor:'rgba(11,143,114,.06)',borderWidth:1.5,pointRadius:3,pointBackgroundColor:'#0b8f72',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:true,animation:{duration:700},plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{min:0,grid:{color:'rgba(0,0,0,.04)'},ticks:{stepSize:150,font:{size:10}}}}}});
+  var cPi=document.getElementById('cPie');
+  if(cPi)CI.pi=new Chart(cPi,{type:'doughnut',data:{labels:['Decode','Identid.','Foco','Dopam.','Rotina+'],datasets:[{data:ph.map(function(v){return Math.max(v,5)}),backgroundColor:tealClrs,borderColor:tealBdrs,borderWidth:1,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:true,animation:{duration:600},plugins:{legend:{position:'bottom',labels:{boxWidth:8,padding:8,font:{size:10}}}},cutout:'60%'}});
+  var cR=document.getElementById('cRank');
+  if(cR)CI.rk=new Chart(cR,{type:'bar',data:{labels:['Mental','Identid.','Foco','Dopam.','Rotina','Presença'],datasets:[{label:'Você',data:[ph[0],ph[1],ph[2],ph[3],ph[4],ph[0]],backgroundColor:'rgba(11,143,114,.6)',borderColor:'#0b8f72',borderWidth:1,borderRadius:3},{label:'Média',data:[38,35,40,32,42,36],backgroundColor:'rgba(0,0,0,.06)',borderColor:'rgba(0,0,0,.15)',borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:true,animation:{duration:700},plugins:{legend:{position:'top',labels:{boxWidth:8,padding:8,font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{min:0,max:100,grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:function(v){return v+'%'},font:{size:10}}}}}});
+}
+function refCharts(){
+  var ph=getPhPct();
+  if(CI.ph){CI.ph.data.datasets[0].data=ph;CI.ph.update('none');}
+  if(CI.ln){var ld=CI.ln.data.datasets[0].data;ld[ld.length-1]=getCurScore();CI.ln.update('none');}
+  if(CI.pi){CI.pi.data.datasets[0].data=ph.map(function(v){return Math.max(v,5)});CI.pi.update('none');}
+  if(CI.rk){CI.rk.data.datasets[0].data=[ph[0],ph[1],ph[2],ph[3],ph[4],ph[0]];CI.rk.update('none');}
+}
+
+// ── DIAGNOSIS QUIZ ──
+var DIMS=['Disciplina','Foco','Autoestima','Energia','Clareza','Presença'];
+var QS=[
+  {dim:'Disciplina',q:'Você cumpre os compromissos que assume consigo mesmo?',o:['Quase nunca — prometo e não cumpro','Às vezes, mas é inconsistente','Na maioria das vezes, sim','Consistentemente — palavra é palavra'],p:[5,30,65,100]},
+  {dim:'Foco',q:'Como é seu nível de foco ao trabalhar em algo importante?',o:['Me distraio a cada 2 minutos','Foco irregular, muitas interrupções','Razoável, mas poderia ser bem melhor','Foco prolongado e consistente'],p:[5,30,65,100]},
+  {dim:'Autoestima',q:'Como você se vê em relação ao seu potencial?',o:['Não acredito que sou capaz','Duvido de mim frequentemente','Acredito, mas com inseguranças','Tenho clareza e confiança no meu potencial'],p:[5,30,65,100]},
+  {dim:'Energia',q:'Como você descreveria seus níveis de energia no dia a dia?',o:['Exausto — acordo cansado, fico cansado','Energia instável — altos e baixos abruptos','Energia razoável, oscila um pouco','Energia consistente e alta'],p:[5,30,65,100]},
+  {dim:'Clareza',q:'Você sabe com clareza o que precisa fazer para evoluir?',o:['Não tenho a menor ideia','Tenho uma noção vaga','Sei, mas fico travado na execução','Tenho clareza total e executo bem'],p:[5,30,65,100]},
+  {dim:'Presença',q:'Como você se sente nas interações sociais e profissionais?',o:['Ansioso e inseguro na maioria','Desconfortável frequentemente','Razoável, poderia ser mais confiante','Confiante e presente naturalmente'],p:[5,30,65,100]}
+];
+var qCur=0,qAns=[];
+var diagScores=[];
+var radarInst=null;
+
+function initQ(){
+  qCur=0;qAns=new Array(QS.length).fill(-1);
+  document.getElementById('diagResult').style.display='none';
+  renderQ();
+}
+function renderQ(){
+  var q=QS[qCur];
+  var fill=Math.round((qCur/QS.length)*100);
+  document.getElementById('qzFill').style.width=fill+'%';
+  document.getElementById('qCount').textContent=(qCur+1)+' de '+QS.length;
+  var pv=document.getElementById('qPrev');if(pv)pv.style.display=qCur>0?'block':'none';
+  var nx=document.getElementById('qNext');if(nx)nx.textContent=qCur===QS.length-1?'Ver diagnóstico →':'Próxima →';
+  var body=document.getElementById('qBody');
+  if(body){
+    var h='<div class="qz-meta"><span class="qz-dim">'+q.dim+'</span><span class="qz-count">'+(qCur+1)+' / '+QS.length+'</span></div>';
+    h+='<div class="qz-q">'+q.q+'</div><div class="qz-opts">';
+    q.o.forEach(function(o,i){
+      h+='<button class="qz-opt'+(qAns[qCur]===i?' sel':'')+'" onclick="qSel('+i+')"><div class="q-dot"></div>'+o+'</button>';
+    });
+    h+='</div>';
+    body.innerHTML=h;
+  }
+}
+function qSel(i){qAns[qCur]=i;renderQ();}
+function qMv(d){
+  if(d===1&&qAns[qCur]===-1&&qCur<QS.length-1){alert('Selecione uma opção para continuar.');return}
+  if(d===1&&qCur===QS.length-1){showDiagResult();return}
+  qCur=Math.max(0,Math.min(QS.length-1,qCur+d));renderQ();
+}
+function showDiagResult(){
+  document.getElementById('qzFill').style.width='100%';
+  document.getElementById('qBody').innerHTML='';
+  document.getElementById('qNav').style.display='none';
+  diagScores=QS.map(function(q,i){return qAns[i]>=0?q.p[qAns[i]]:5;});
+  var avg=diagScores.reduce(function(a,b){return a+b},0)/diagScores.length;
+  var profileName,profileDesc;
+  if(avg>=75){profileName='O Ascendente';profileDesc='Você tem bases sólidas. O VORTEX vai refinar e consolidar o que já existe, levando ao próximo nível com consistência.';}
+  else if(avg>=50){profileName='Em Transição';profileDesc='Você sabe o que quer mas algo trava a execução. O protocolo vai identificar e eliminar esses bloqueios com precisão.';}
+  else if(avg>=30){profileName='O Caótico';profileDesc='Alta energia, baixa direção. Você tem potencial real — falta o sistema. O módulo de foco vai transformar essa energia em resultado.';}
+  else{profileName='O Paralisado';profileDesc='Ponto zero é potencial máximo. As próximas 3 semanas do VORTEX vão criar mudanças visíveis que você nunca imaginou serem possíveis.';}
+  document.getElementById('pcName').textContent=profileName;
+  document.getElementById('pcDesc').textContent=profileDesc;
+  var dr=document.getElementById('diagResult');dr.style.display='block';
+  renderDimBars();
+  setTimeout(renderRadar,100);
+}
+function renderDimBars(){
+  var c=document.getElementById('dimBars');if(!c)return;
+  var h='';
+  DIMS.forEach(function(d,i){
+    h+='<div class="db-row"><div class="db-label" style="font-family:\'Syne\',sans-serif;font-size:11px;color:var(--ink2)">'+d+'</div><div class="db-track"><div class="db-fill" style="width:0%;transition:width '+(0.6+i*0.1)+'s ease" id="dbf'+i+'"></div></div><div class="db-val">'+diagScores[i]+'</div></div>';
+  });
+  c.innerHTML=h;
+  setTimeout(function(){DIMS.forEach(function(d,i){var el=document.getElementById('dbf'+i);if(el)el.style.width=diagScores[i]+'%';});},50);
+}
+function renderRadar(){
+  var ctx=document.getElementById('radarChart');if(!ctx)return;
+  if(radarInst){radarInst.destroy();radarInst=null;}
+  radarInst=new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:DIMS,
+      datasets:[{
+        data:diagScores,
+        backgroundColor:'rgba(11,143,114,.08)',
+        borderColor:'#0b8f72',
+        borderWidth:1.5,
+        pointBackgroundColor:'#0b8f72',
+        pointBorderColor:'#fff',
+        pointBorderWidth:1.5,
+        pointRadius:4,
+        pointHoverRadius:5,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      animation:{duration:700},
+      scales:{r:{min:0,max:100,ticks:{display:false,stepSize:25},grid:{color:'rgba(0,0,0,.07)'},pointLabels:{font:{size:10.5,family:"'Syne',sans-serif"},color:'#4a4940'},angleLines:{color:'rgba(0,0,0,.06)'}}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'%'}}}}
+    }
+  });
+}
+
+initQ();
+updateScore();
+// Set today's day
+(function(){var d=document.getElementById('dDay');if(d)d.textContent=1;})();
+</script>
+</body>
+</html>
